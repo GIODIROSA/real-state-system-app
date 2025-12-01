@@ -43,7 +43,7 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="mb-2 font-semibold text-zinc-900 dark:text-zinc-100">
-              Gestión de Usuarios
+              Gestión de Usuarios - CRUD
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               CRUD completo de usuarios conectado a la API REST
