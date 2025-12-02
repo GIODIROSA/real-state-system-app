@@ -7,11 +7,12 @@
  * DTO de respuesta de usuario desde la API
  */
 export interface User {
-  id: string;
+  id: number;
   email: string;
   name: string;
   createdAt: string;
   updatedAt: string;
+  role: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export interface User {
 export interface CreateUserDTO {
   email: string;
   name: string;
+  password?: string; // Optional for updates, required for creation
 }
 
 /**

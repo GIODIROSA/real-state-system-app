@@ -1,50 +1,62 @@
 /**
  * @fileoverview Formulario de usuario (crear/editar)
  */
+"use client";
 
-'use client';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { CreateUserDTO, User } from '@/types/user.types';
-import { useState } from 'react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { CreateUserSchema, CreateUserFormValues } from "@/lib/schemas/auth.schema";
+import { User } from "@/types/user.types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
 
 interface UserFormProps {
   user?: User;
-  onSubmit: (data: CreateUserDTO) => void;
+  onSubmit: (data: CreateUserFormValues) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
-export function UserForm({
-  user,
-  onSubmit,
-  onCancel,
-  isLoading,
-}: UserFormProps) {
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps) {
+  // Cuando se edita, no validamos la contraseña.
+  // Podríamos tener un esquema de edición separado si las reglas fueran diferentes.
+  const isEditing = !!user;
+  const form = useForm<CreateUserFormValues>({
+    resolver: zodResolver(CreateUserSchema),
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: { name?: string; email?: string } = {};
+  const [showPassword, setShowPassword] = useState(false);
 
-    if (!name.trim()) newErrors.name = 'El nombre es requerido';
-    if (!email.trim()) newErrors.email = 'El email es requerido';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      newErrors.email = 'Email inválido';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+  // Si se pasa un usuario (modo edición), reseteamos los valores del formulario.
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name,
+        email: user.email,
+        password: "",
+      });
     }
+  }, [user, form]);
 
-    onSubmit({ name, email });
+  const handleFormSubmit = (data: CreateUserFormValues) => {
+    // Si estamos editando, no queremos enviar una contraseña vacía.
+    if (isEditing) {
+      const { password, ...updateData } = data;
+      onSubmit(updateData as CreateUserFormValues);
+    } else {
+      onSubmit(data);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <label
           htmlFor="name"
@@ -56,11 +68,13 @@ export function UserForm({
           id="name"
           type="text"
           placeholder="Ingresa el nombre"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={errors.name}
+          {...form.register("name")}
+          error={form.formState.errors.name?.message}
           disabled={isLoading}
         />
+        {form.formState.errors.name && (
+          <p className="text-xs text-red-600 mt-1">{form.formState.errors.name.message}</p>
+        )}
       </div>
 
       <div>
@@ -74,12 +88,45 @@ export function UserForm({
           id="email"
           type="email"
           placeholder="correo@ejemplo.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          error={errors.email}
+          {...form.register("email")}
+          error={form.formState.errors.email?.message}
           disabled={isLoading}
         />
+        {form.formState.errors.email && (
+          <p className="text-xs text-red-600 mt-1">{form.formState.errors.email.message}</p>
+        )}
       </div>
+
+      {!isEditing && (
+        <div>
+          <label
+            htmlFor="password"
+            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          >
+            Contraseña
+          </label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              {...form.register("password")}
+              error={form.formState.errors.password?.message}
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          {form.formState.errors.password && (
+            <p className="text-xs text-red-600 mt-1">{form.formState.errors.password.message}</p>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 pt-4">
         <Button

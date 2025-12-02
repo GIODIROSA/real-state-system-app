@@ -40,6 +40,15 @@ async function request<T>(
     },
   };
 
+  // Add Authorization header if token exists in localStorage
+  const authToken = localStorage.getItem('authToken');
+  if (authToken) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${authToken}`,
+    };
+  }
+
   if (body) {
     config.body = JSON.stringify(body);
   }

@@ -1,3 +1,6 @@
+
+
+
 export default async function UserDetailPage({
     params,
 }: {
