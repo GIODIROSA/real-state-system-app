@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* 
 
 :root {
   --background: #ffffff;
@@ -19,8 +22,177 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+*/
+
+/* 1. DEFINICIÓN DE LA PALETA (PRIMITIVOS) */
+
+/* Aquí registramos los colores exactos del Kit UI de CChC */
+@theme {
+  /* --- COLORES DE MARCA (La Paleta CChC) --- */
+  /* Al ponerlos aquí, Tailwind crea: bg-brand-500, text-brand-600, border-brand-200 */
+
+
+  
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #c2e1ff;
+  --color-brand-200: #8fc7ff;
+  --color-brand-300: #52a9ff; /*  Disabled */
+  --color-brand-400: #1f8fff;
+  --color-brand-500: #006edc; /* azul principal */
+  --color-brand-600: #0052a3; /*  hover */
+  --color-brand-700: #003b75;
+  --color-brand-800: #002952;
+  --color-brand-900: #001a33;
+
+  --color-accent-50: #fff0eb;
+  --color-accent-100: #fed1c2;
+  --color-accent-200: #feaa8f;
+  --color-accent-300: #feaa8f; /*  Disabled */
+  --color-accent-400: #fe5520;
+  --color-accent-500: #df3601; /*  Naranja principal */
+  --color-accent-600: #c12f01; /*  hover */
+  --color-accent-700: #8e2201;
+  --color-accent-800: #5b1600;
+  --color-accent-900: #FFF4F0; /* hover outline */
+
+  
+  --color-neutral-50: #f3f4f6;
+  --color-neutral-100: #dcdfe5;
+  --color-neutral-200: #b8c0cb;
+  --color-neutral-300: #95a0b2;
+  --color-neutral-400: #6e7e96;
+  --color-neutral-500: #586579; /* Gris principal */
+  --color-neutral-600: #424b5a;
+  --color-neutral-700: #2d333e;
+  --color-neutral-800: #20242c;
+
+  /* --- MAPEO DE SEMÁNTICOS (Para Shadcn/UI) --- */
+  /* Conecta las variables dinámicas de :root con clases de Tailwind */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --bg-primary: var(--cchc-background-primary);
+  --bg-secondary: var(--cchc-background-secondary);
+  --bg-accent-500: var(--color-accent-500);
+  --bg-accent-300: var(--color-accent-300);
+  --bg-accent-900: var(--color-accent-900);
+  --font-cchc: var(--font-lora);
+  --font-body: var(--font-roboto);
+  --rounded-none: var(--radius-none);
+  --rounded-xs: var(--radius-xs);
+  --rounded-sm: var(--radius-sm);
+  --rounded-md: var(--radius-md);
+  --rounded-lg: var(--radius-lg);
+  --rounded-full: var(--radius-full);
+
+  /* Shadow 1: X:0px Y:2px Blur:8px Opacity:15% Color:#333333 */
+  --shadow-cchc-1: 0px 2px 8px rgba(51, 51, 51, 0.15);
+
+  /* Shadow 2: X:0px Y:8px Blur:16px Opacity:15% Color:#333333 */
+  --shadow-cchc-2: 0px 8px 16px rgba(51, 51, 51, 0.15);
+
+  /* --- TIPOGRAFÍAS --- */
+  /* Esto crea las clases: font-cchc y font-roboto */
+  --font-lora: "Lora", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+
+  /* --- ESPACIADOS (SPACING) --- */
+  /* Esto re-define p-1, m-1, gap-1, etc. */
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.5rem; /* 24px */
+  --spacing-6: 2rem; /* 32px */
+  --spacing-7: 2.5rem; /* 40px */
+  --spacing-8: 3rem; /* 48px */
+  --spacing-9: 4rem; /* 64px */
+  --spacing-10: 5rem; /* 80px */
+
+  /* --- BORDES (RADIUS) --- */
+  /* Esto crea: rounded-sm, rounded-md, rounded-lg, rounded-full */
+  --radius-none: 0;
+  --radius-xs: 4px;
+  --radius-sm: 8px; /* --border-radius-small */
+  --radius-md: 16px; /* --border-radius-normal */
+  --radius-lg: 24px; /* --border-radius-large */
+  --radius-full: 50%; /* --border-radius-circle */
+
+  /* --- TIPOS DE LETRA (FONT WEIGHTS) --- */
+  --weigth-light: 300;
+  --weigth-regular: 400;
+  --weigth-medium: 500;
+  --weigth-semi-bold: 600;
+  --weigth-bold: 700;
+
+  /* --- BREAKPOINTS RESPONSIVE --- */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* --- SOMBRAS (SHADOWS) --- */
+
+  /* SIZE */
+  --size-small: 12px;
+  --size-medium: 14px;
+  --size-large: 16px;
+  --size-extra-large: 24px;
+  --size-2xl: 32px;
+  --size-3xl: 64px;
+  --size-4xl: 48px;
+
+  /* Line height */
+  --line-height: auto;
+  --line-height-normal: 24px;
+  --line-height-medium: 28px;
+  --line-height-large: 32px;
+  --line-height-extra-large: 40px;
+  --line-height-2xl: 48px;
+  --line-height-3xl: 56px;
+  --line-height-4xl: 64px;
+  --line-height-5xl: 72px;
 }
+
+@layer base {
+  :root {
+    /* Fondo y Texto por defecto */
+    --background: var(--color-neutral-50);
+    --foreground: var(--color-neutral-800);
+
+    /* Asignación de Roles CChC */
+    /* Primary = Azul Brand */
+    --primary: var(--color-brand-500);
+    --primary-foreground: #ffffff;
+
+    /* Secondary = Naranja Accent */
+    --secondary: var(--color-accent-500);
+    --secondary-foreground: #ffffff;
+
+    --border-radius-small: var(--radius-sm);
+    --border-radius-normal: var(--radius-md);
+    --border-radius-large: var(--radius-lg);
+    --border-radius-circle: var(--radius-full);
+    --cchc-background-primary: var(--color-accent-500);
+    --cchc-background-secondary: var(--color-brand-500);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--secondary-foreground);
+}
+
+/* @media (max-width: var(--breakpoint-md)) {
+  :root {
+  }
+} */

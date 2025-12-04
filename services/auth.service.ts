@@ -4,7 +4,8 @@ import {
   TwoFactorPayload,
   AuthResponse,
 } from "@/types/auth.types";
-import { User, ChangePasswordDTO } from "@/types/user.types"; // Import User type
+import { User } from "@/types/user.types"; 
+import { ChangePasswordDTO } from "@/types/auth.types";
 
 export const authService = {
   // --- PASO 1: Enviar Credenciales ---

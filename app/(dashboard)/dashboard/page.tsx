@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { APP_CONFIG } from "@/lib/config";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner"; // Asumiendo que tienes un componente Spinner
+import { Button } from "@/components/ui";
 
 export default function DashboardLayout({
   children,
@@ -54,6 +55,8 @@ export default function DashboardLayout({
         </div>
         <h1>DASHBOARD ----- USTED ESTA AQUÍ</h1>
         {/* Más tarjetas... */}
+        <span>prueba</span>
+        <Button variant="outlineSecondary">loquesea</Button>
       </div>
     </div>
   );
