@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/utils/utils";
 import { AxiosError } from "axios";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -111,17 +112,32 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Checkbox HU-001 */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                {...form.register("rememberDevice")}
-                id="remember"
-                className="rounded border-gray-300"
-              />
-              <label htmlFor="remember" className="text-sm text-gray-600">
-                Recordar este dispositivo
-              </label>
+            {/* Checkbox HU-001 + Enlace HU-002 */}
+            <div className="flex items-center justify-between">
+
+              {/* Lado IZQUIERDO */}
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  {...form.register("rememberDevice")}
+                  id="remember"
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor="remember" className="text-sm text-gray-600">
+                  Recordar este dispositivo
+                </label>
+              </div>
+
+                {/* Lado DERECHO */}
+
+                <Link 
+                href="/forgot-password" 
+                className="text-sm font-medium text-blue-900 hover:text-blue-800 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+
             </div>
 
             <Button

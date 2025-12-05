@@ -18,12 +18,16 @@ export interface PermissionsResponse {
 }
 
 //Lo que responde el backend actualmente
-export interface BackendLoginResponse<T> {
+
+export interface BackendResponse<T> {
   success: boolean;
   message: string;
   data: T;
   status?: number;
 }
+
+// Backend login y backend response manejan la misma estructura
+export type BackendLoginResponse<T> = BackendResponse<T>;
 
 // Usar internamente
 export interface AuthResponse {

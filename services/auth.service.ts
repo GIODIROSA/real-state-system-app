@@ -3,6 +3,7 @@ import {
   LoginCredentials,
   BackendLoginResponse,
   PermissionsResponse,
+  BackendResponse 
 } from "@/types/auth.types";
 import { User } from "@/types/user.types";
 // import { verify } from "crypto";
@@ -59,4 +60,30 @@ export const authService = {
       //silent fail
     }
   },
+
+  // 4. FORGOT PASSWORD
+  async forgotPassword(email: string){
+
+    //Endpoint: POST /api/auth/forgot-password
+    // Body: {"email": "test@test.com"}
+
+    try{
+      const {data} = await apiClient.post<BackendResponse<any>>("/auth/forgot-password", {
+        email: email,
+        email_test: "gdirosa@flagare.cl"
+      });
+
+      if(!data.success){
+        throw new Error(data.message || "No se pudo procesar la solicitud.");
+      }
+
+      return data;
+
+    }catch(error){
+
+      console.error("Error en fogortPassword:", error);
+      throw error;
+
+    }
+  }
 };

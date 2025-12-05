@@ -15,9 +15,17 @@ export const LoginSchema = z.object({
   rememberDevice: z.boolean().optional(),
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "El correo es obligatorio")
+    .email("Debes ingresar un correo válido"),
+});
+
 export const TwoFactorSchema = z.object({
   code: z.string().length(6, "El código debe ser de 6 dígitos"),
 });
 
 export type LoginFormValues = z.infer<typeof LoginSchema>;
 export type TwoFactorFormValues = z.infer<typeof TwoFactorSchema>;
+export type ForgotPasswordFormValues = z.infer<typeof ForgotPasswordSchema>;

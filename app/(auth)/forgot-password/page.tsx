@@ -19,6 +19,7 @@ import { Mail, ArrowLeft } from "lucide-react";
 
 import { ForgotPasswordSchema, ForgotPasswordFormValues } from "@/lib/schemas/auth.schema";
 import { authService } from "@/services/auth.service";
+import { getErrorMessage } from "@/lib/utils/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,41 +39,57 @@ export default function ForgotPasswordPage() {
     setSuccessMessage("");
     setErrorMessage("");
     try {
-      // En un futuro, esto llamaría a un servicio real.
-      // await authService.forgotPassword(data.email); 
-      console.log("Simulating forgot password for:", data.email);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+    
+      // 1. Llamada al servicio
+      await authService.forgotPassword(data.email)
 
+      // 2. Mensaje de ÉXITO
       setSuccessMessage("Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña en breve.");
+      form.reset();
+
     } catch (error) {
-      // Aunque lo simulemos, preparamos el manejo de errores.
-      setErrorMessage("No se pudo procesar la solicitud. Inténtalo de nuevo más tarde.");
+
+      setErrorMessage(getErrorMessage(error));
+
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-md shadow-xl border-t-4 border-blue-900">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">¿Olvidaste tu Contraseña?</CardTitle>
+          <CardTitle className="text-2xl font-bold text-blue-900">
+            Recuperar Contraseña
+          </CardTitle>
           <CardDescription>
-            Ingresa tu correo y te enviaremos un enlace de recuperación.
+            Ingresa tu correo institucional y te enviaremos las instrucciones.
           </CardDescription>
         </CardHeader>
+        
         <CardContent>
           {successMessage ? (
-            <div className="text-center p-4 bg-green-50 text-green-800 rounded-md">
-              <p>{successMessage}</p>
+            // VISTA DE ÉXITO
+            <div className="text-center space-y-6 animate-in fade-in duration-500">
+              <div className="p-4 bg-green-50 text-green-800 rounded-md border border-green-200">
+                <p className="font-semibold text-lg">¡Solicitud Enviada!</p>
+                <p className="text-sm mt-2 text-green-700">{successMessage}</p>
+              </div>
+              <Button asChild className="w-full bg-blue-900 hover:bg-blue-800">
+                <Link href="/login">Volver al Login</Link>
+              </Button>
             </div>
           ) : (
+            // VISTA DEL FORMULARIO
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              
               {errorMessage && (
-                <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
-                  {errorMessage}
+                <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200 flex items-center gap-2">
+                   <span>⚠️</span> {errorMessage}
                 </div>
               )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
                 <div className="relative">
@@ -80,21 +97,27 @@ export default function ForgotPasswordPage() {
                   <Input
                     {...form.register("email")}
                     className="pl-10"
-                    placeholder="tu.correo@ejemplo.com"
-                    error={form.formState.errors.email?.message}
+                    placeholder="ejemplo@cchc.cl"
+                    type="email"
+                    disabled={loading} // Bloqueamos input mientras carga
                   />
                 </div>
                 {form.formState.errors.email && (
                   <p className="text-xs text-red-600">{form.formState.errors.email.message}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Enviando..." : "Enviar Enlace"}
+
+              <Button type="submit" className="w-full bg-blue-900 hover:bg-blue-800" disabled={loading}>
+                {loading ? "Enviando solicitud..." : "Enviar Enlace"}
               </Button>
             </form>
           )}
+
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-blue-900 hover:underline flex items-center justify-center gap-2">
+            <Link 
+              href="/login" 
+              className="text-sm text-gray-500 hover:text-blue-900 hover:underline flex items-center justify-center gap-2 transition-colors"
+            >
               <ArrowLeft className="w-4 h-4" />
               Volver al Login
             </Link>
