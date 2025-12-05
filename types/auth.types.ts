@@ -1,4 +1,4 @@
-import { User } from './user.types';
+import { User } from "./user.types";
 
 /**
  * DTO para el formulario de login
@@ -6,6 +6,34 @@ import { User } from './user.types';
 export interface LoginCredentials {
   email: string;
   password: string;
+  rememberDevice?: boolean;
+}
+
+export interface PermissionsResponse {
+  success: boolean;
+  permissions: {
+    id: number;
+    name: string;
+  }[];
+}
+
+//Lo que responde el backend actualmente
+export interface BackendLoginResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  status?: number;
+}
+
+// Usar internamente
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface UserPermissions {
+  roles: string[];
+  permissions: { id: number; name: string }[];
 }
 
 /**
@@ -39,4 +67,3 @@ export interface ResetPasswordDTO {
   token: string;
   newPassword: string;
 }
-
