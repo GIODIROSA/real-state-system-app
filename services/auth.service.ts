@@ -85,5 +85,26 @@ export const authService = {
       throw error;
 
     }
+  },
+
+  // 5. RESTABLECER CONTRASEÑA
+  async resetPassword(token: string, password: string){
+    try {
+      const {data} = await apiClient.post<BackendResponse<any>>("/auth/reset-password", {
+        token,
+        password
+      });
+
+      if(!data.success){
+        throw new Error(data.message || "No se pudo restablecer la contraseña")
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error("Error en resetPassword:", error);
+      throw error;
+      
+    }
   }
 };
