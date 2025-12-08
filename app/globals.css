@@ -1,28 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* 
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-*/
 
 /* 1. DEFINICIÓN DE LA PALETA (PRIMITIVOS) */
 
@@ -31,8 +10,6 @@
   /* --- COLORES DE MARCA (La Paleta CChC) --- */
   /* Al ponerlos aquí, Tailwind crea: bg-brand-500, text-brand-600, border-brand-200 */
 
-
-  
   --color-brand-50: #f0f7ff;
   --color-brand-100: #c2e1ff;
   --color-brand-200: #8fc7ff;
@@ -190,6 +167,10 @@
 
 body {
   background: var(--secondary-foreground);
+}
+
+img{
+  width: 100%;
 }
 
 /* @media (max-width: var(--breakpoint-md)) {
