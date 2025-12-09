@@ -1,3 +1,3 @@
 export default function Users() {
-  return <h1>Users Page</h1>;
+  return <h1>Vista de formulario para Gestionar un usuario</h1>;
 }

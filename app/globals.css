@@ -10,7 +10,8 @@
   /* --- COLORES DE MARCA (La Paleta CChC) --- */
   /* Al ponerlos aquí, Tailwind crea: bg-brand-500, text-brand-600, border-brand-200 */
 
-  --color-brand-50: #f0f7ff;
+
+  --color-brand-50: #f0f7ff; /*  bg-general */
   --color-brand-100: #c2e1ff;
   --color-brand-200: #8fc7ff;
   --color-brand-300: #52a9ff; /*  Disabled */
@@ -33,8 +34,9 @@
   --color-accent-900: #FFF4F0; /* hover outline */
 
   
+
   --color-neutral-50: #f3f4f6;
-  --color-neutral-100: #dcdfe5;
+  --color-neutral-100: #dcdfe5; /* #DCDFE5 border input */
   --color-neutral-200: #b8c0cb;
   --color-neutral-300: #95a0b2;
   --color-neutral-400: #6e7e96;
@@ -42,6 +44,7 @@
   --color-neutral-600: #424b5a;
   --color-neutral-700: #2d333e;
   --color-neutral-800: #20242c;
+
 
   /* --- MAPEO DE SEMÁNTICOS (Para Shadcn/UI) --- */
   /* Conecta las variables dinámicas de :root con clases de Tailwind */
@@ -56,6 +59,7 @@
   --bg-accent-500: var(--color-accent-500);
   --bg-accent-300: var(--color-accent-300);
   --bg-accent-900: var(--color-accent-900);
+  --bg-brand-50: var(--color-brand-50);
   --font-cchc: var(--font-lora);
   --font-body: var(--font-roboto);
   --rounded-none: var(--radius-none);
@@ -161,7 +165,6 @@
 
 * {
   margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 

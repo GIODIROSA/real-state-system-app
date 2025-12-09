@@ -1,8 +1,12 @@
 import { z } from "zod";
 
 export const LoginSchema = z.object({
-  email: z.string().email("Formato de correo inválido"),
-  
+  email: z
+    .string()
+    .min(1, { message: "El correo es obligatorio" }) 
+    .email({ message: "Ingresa un correo con un formato válido" }),
+
+
   // Políticas de seguridad modernas
   password: z
     .string()

@@ -31,15 +31,19 @@ export const authService = {
         throw new Error("No se pudieron cargar los permisos del usuario");
       }
 
-      // 3. Construir usuario
+      const userData= data.data;
 
-      const userData = data.data;
+      // 3.0 Mapea los permisos
+      const flattenedPermissions = userData.permissions.map(p => p.name);
+
+      // 3.1 Construir usuario
 
       const user: User = {
         id: email,
         email: email,
         name: email.split("@")[0],
         role: userData.roles[0] || "User",
+        permissions: flattenedPermissions,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         // opcional guardar los permisos restante.

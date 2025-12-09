@@ -7,10 +7,11 @@
  * DTO de respuesta de usuario desde la API
  */
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: string;
+  permissions: string[];
   createdAt: string;
   updatedAt: string;
 }

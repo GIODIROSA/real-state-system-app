@@ -33,7 +33,10 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: "", password: "", rememberDevice: false },
+    mode: "onBlur",
   });
+
+ 
 
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
@@ -71,7 +74,7 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4">
+    <section className="flex min-h-screen w-full items-center justify-center bg-brand-50 p-4">
       <div className="relative flex w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
         {/* IZQUIERDA IMAGEN */}
         <div className="relative w-full h-64 md:h-auto md:w-1/2 bg-gray-900">
@@ -85,8 +88,8 @@ export default function LoginPage() {
         {/* DERECHA LOGIN */}
 
         <div className="flex w-full flex-col justify-center bg-white p-8 md:w-1/2 md:p-12 lgp-16">
-          <div className="w-full mx-auto max-w-[340px] space-y-8">
-            <div className="text-center space-y-6">
+          <div className="w-full mx-auto flex flex-col gap-[32px] space-y-8">
+            <div className="text-center space-y-6 flex flex-col items-center gap-[32px]">
               {/* ENCABEZADO LOGO */}
 
               <div className="relative mx-auto h-16 w-48">
@@ -118,83 +121,98 @@ export default function LoginPage() {
             )}
 
             {/* FORMULARIO */}
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-body text-gray-700 ml-1">
-                    Correo
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Mail className="h-5 w-5" />
+            <section className="flex justify-center">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-4 w-full max-w-[360px] mx-auto px-6"
+              >
+                <div className="space-y-5">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-body text-gray-700 ml-1">
+                      Correo
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        <Mail className="h-4 w-4" />
+                      </div>
+
+                      <Input
+                        {...form.register("email")}
+                        type="email"
+                        placeholder="Ingresa tu correo"
+                        variant="login"
+                        iconPadding="left"
+                      />
+                    </div>
+                    {form.formState.errors.email && (
+                      <p className="text-red-500 text-right font-body text-xs">
+                        {form.formState.errors.email.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-body text-gray-600 ml-1">
+                      Clave
+                    </label>
+                    <div className="relative">
+                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        <Lock className="h-4 w-4" />
+                      </div>
+
+                      <Input
+                        {...form.register("password")}
+                        type="password"
+                        placeholder="Ingresa tu clave"
+                        variant="login"
+                        iconPadding="left"
+                      />
                     </div>
 
-                    <Input
-                      {...form.register("email")}
-                      type="email"
-                      placeholder="Ingresa tu correo"
-                    />
+                    {form.formState.errors.password && (
+                      <p className="text-red-500 text-right font-body text-xs">
+                        {form.formState.errors.password.message}
+                      </p>
+                    )}
                   </div>
-                  {form.formState.errors.email && (
-                    <p className="text-xs text-red-500 ml-1">
-                      {form.formState.errors.email.message}
-                    </p>
-                  )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-body text-gray-600 ml-1">
-                    Clave
-                  </label>
-                  <Input
-                    {...form.register("password")}
-                    type="password"
-                    placeholder="Ingresa tu clave"
-                    className="h-12 border-gray-200 bg-gray-50/50 focus:bg-white transition-all rounded-lg"
+
+                <div className="flex items-center space-x-2 ml-1">
+                  <input
+                    type="checkbox"
+                    {...form.register("rememberDevice")}
+                    id="remember"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900 cursor-pointer"
                   />
-                  {form.formState.errors.password && (
-                    <p className="text-xs text-red-500 ml-1">
-                      {form.formState.errors.password.message}
-                    </p>
-                  )}
+                  <label
+                    htmlFor="remember"
+                    className="text-sm text-gray-500 cursor-pointer select-none"
+                  >
+                    Recordar mis datos
+                  </label>
                 </div>
-              </div>
 
-              <div className="flex items-center space-x-2 ml-1">
-                <input
-                  type="checkbox"
-                  {...form.register("rememberDevice")}
-                  id="remember"
-                  className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900 cursor-pointer"
-                />
-                <label
-                  htmlFor="remember"
-                  className="text-sm text-gray-500 cursor-pointer select-none"
-                >
-                  Recordar mis datos
-                </label>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outlinePrimary"
-                  size="default"
-                  className="w-full text-blue-800 border-blue-800 hover:bg-blue-50 text-sm font-semibold rounded-lg h-12"
-                  asChild
-                >
-                  <Link href="/forgot-password">Recuperar mi clave</Link>
-                </Button>
-                <Button
-                  type="submit"
-                  variant="default"
-                  size="default"
-                  className="w-full bg-[#EBF5FF] text-[#0056b3] hover:bg-blue-100 border-none font-bold text-sm rounded-lg h-12"
-                  disabled={loading}
-                >
-                  {loading ? "..." : "Ingresar"}
-                </Button>
-              </div>
-            </form>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="outlinePrimary"
+                    size="default"
+                    className="w-full text-blue-800 border-blue-800 hover:bg-blue-50 text-sm font-semibold rounded-lg h-12"
+                    asChild
+                  >
+                    <Link href="/forgot-password">Recuperar mi clave</Link>
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="default"
+                    size="default"
+                    className="w-full bg-[#EBF5FF] text-[#0056b3] hover:bg-blue-100 border-none font-bold text-sm rounded-lg h-12"
+                    disabled={loading}
+                  >
+                    {loading ? "..." : "Ingresar"}
+                  </Button>
+                </div>
+              </form>
+            </section>
           </div>
         </div>
       </div>
