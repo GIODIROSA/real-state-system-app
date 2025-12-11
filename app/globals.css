@@ -7,20 +7,8 @@
 
 /* Aquí registramos los colores exactos del Kit UI de CChC */
 @theme {
-  /* --- COLORES DE MARCA (La Paleta CChC) --- */
-  /* Al ponerlos aquí, Tailwind crea: bg-brand-500, text-brand-600, border-brand-200 */
 
-
-  --color-brand-50: #f0f7ff; /*  bg-general */
-  --color-brand-100: #c2e1ff;
-  --color-brand-200: #8fc7ff;
-  --color-brand-300: #52a9ff; /*  Disabled */
-  --color-brand-400: #1f8fff;
-  --color-brand-500: #006edc; /* azul principal */
-  --color-brand-600: #0052a3; /*  hover */
-  --color-brand-700: #003b75;
-  --color-brand-800: #002952;
-  --color-brand-900: #001a33;
+  /* NARANJA */
 
   --color-accent-50: #fff0eb;
   --color-accent-100: #fed1c2;
@@ -33,7 +21,20 @@
   --color-accent-800: #5b1600;
   --color-accent-900: #FFF4F0; /* hover outline */
 
-  
+  /* AZUL */
+
+  --color-brand-50: #f0f7ff; /*  bg-general */
+  --color-brand-100: #c2e1ff; /*  Disabled */
+  --color-brand-200: #8fc7ff;
+  --color-brand-300: #52a9ff; 
+  --color-brand-400: #1f8fff;
+  --color-brand-500: #006edc; /* azul principal */
+  --color-brand-600: #0052a3; /*  hover */
+  --color-brand-700: #003b75;
+  --color-brand-800: #002952;
+  --color-brand-900: #001a33;
+
+  /* GRIS */
 
   --color-neutral-50: #f3f4f6;
   --color-neutral-100: #dcdfe5; /* #DCDFE5 border input */
@@ -41,7 +42,7 @@
   --color-neutral-300: #95a0b2;
   --color-neutral-400: #6e7e96;
   --color-neutral-500: #586579; /* Gris principal */
-  --color-neutral-600: #424b5a;
+  --color-neutral-600: #424b5a; /* Neutral 30 titulo*/
   --color-neutral-700: #2d333e;
   --color-neutral-800: #20242c;
 
@@ -54,12 +55,12 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --bg-primary: var(--cchc-background-primary);
-  --bg-secondary: var(--cchc-background-secondary);
   --bg-accent-500: var(--color-accent-500);
   --bg-accent-300: var(--color-accent-300);
   --bg-accent-900: var(--color-accent-900);
   --bg-brand-50: var(--color-brand-50);
+  --bg-brand-100: (var(--color-brand-100));
+  --bg-brand-600: var(--color-brand-600);
   --font-cchc: var(--font-lora);
   --font-body: var(--font-roboto);
   --rounded-none: var(--radius-none);
@@ -68,6 +69,8 @@
   --rounded-md: var(--radius-md);
   --rounded-lg: var(--radius-lg);
   --rounded-full: var(--radius-full);
+  --text-neutral-600: var(--color-neutral-600);
+  --text-brand-500: var(--color-brand-500);
 
   /* Shadow 1: X:0px Y:2px Blur:8px Opacity:15% Color:#333333 */
   --shadow-cchc-1: 0px 2px 8px rgba(51, 51, 51, 0.15);
@@ -139,7 +142,7 @@
   --line-height-5xl: 72px;
 }
 
-@layer base {
+@layer base {  
   :root {
     /* Fondo y Texto por defecto */
     --background: var(--color-neutral-50);
@@ -158,8 +161,6 @@
     --border-radius-normal: var(--radius-md);
     --border-radius-large: var(--radius-lg);
     --border-radius-circle: var(--radius-full);
-    --cchc-background-primary: var(--color-accent-500);
-    --cchc-background-secondary: var(--color-brand-500);
   }
 }
 

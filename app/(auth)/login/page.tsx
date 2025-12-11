@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,8 @@ import { authService } from "@/services/auth.service";
 import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Image } from "@/components/ui";
+import { StatusAlert } from "@/components/ui";
+import { BackendErrorResponse } from "@/types/auth.types";
 import {
   Card,
   CardContent,
@@ -26,6 +28,14 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth(); // Hook para guardar estado global
   const [loading, setLoading] = useState(false);
+
+  // CONTROLA LA ALERTA Y EL BLOQUEO
+  const [alertState, setAlertState] = useState<{
+    type: "warning" | "error";
+    message: string;
+    isBlocked: boolean;
+  } | null>(null);
+
   const [errorGlobal, setErrorGlobal] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,14 +43,23 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: "", password: "", rememberDevice: false },
-    mode: "onBlur",
+    mode: "onChange",
   });
 
- 
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      // limpiamos si No está bloqueado permanentemente
+      if (alertState && !alertState.isBlocked) {
+        setAlertState(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, alertState]);
 
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     setErrorGlobal("");
+    setAlertState(null); //limpiamos alertas previas
 
     try {
       // PASO A: Login (Autenticación)
@@ -58,15 +77,46 @@ export default function LoginPage() {
 
         // PASO D: Redirigir
         router.push("/dashboard");
-      } else {
-        setErrorGlobal(loginResponse.message || "Credenciales incorrectas");
       }
     } catch (error) {
-      // ... manejo de errores (bloqueo 403, etc) ...
-      if (error instanceof AxiosError && error.response?.status === 403) {
-        setErrorGlobal("⛔ Cuenta bloqueada. Contacte al administrador.");
-      } else {
-        setErrorGlobal(getErrorMessage(error));
+      if (error instanceof AxiosError) {
+        const status = error.response?.status;
+        const errorData = error.response?.data as BackendErrorResponse;
+
+        // CASO 1: CUENTA BLOQUEADA (403)
+        if (status === 403) {
+          setAlertState({
+            type: "error", // Rojo
+            message:
+              "Tu cuenta ha sido bloqueada. Un administrador revisará tu caso y te notificaremos cuando se resuelva la situación.",
+            isBlocked: true, // Bloquea inputs y botón recuperar
+          });
+        }
+        // CASO 2: CREDENCIALES INVÁLIDAS (401)
+        else if (status === 401 && errorData.errors) {
+          const { remainingAttempts } = errorData.errors;
+
+          let msg = "Usuario o contraseña incorrectos. Si fallas nuevamente tu cuenta será bloqueada por seguridad.";
+          if (remainingAttempts > 0) {
+            msg += ` Dispones de ${remainingAttempts} ${
+              remainingAttempts === 1 ? "intento más" : "intentos más"
+            } antes del bloqueo de tu cuenta.`;
+          }
+
+          setAlertState({
+            type: "warning", // Amarillo
+            message: msg,
+            isBlocked: false,
+          });
+        }
+        // CASO 3: OTROS ERRORES
+        else {
+          setAlertState({
+            type: "error",
+            message: "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
+            isBlocked: false,
+          });
+        }
       }
     } finally {
       setLoading(false);
@@ -75,9 +125,9 @@ export default function LoginPage() {
 
   return (
     <section className="flex min-h-screen w-full items-center justify-center bg-brand-50 p-4">
-      <div className="relative flex w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
+      <div className="relative flex gap-4 w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
         {/* IZQUIERDA IMAGEN */}
-        <div className="relative w-full h-64 md:h-auto md:w-1/2 bg-gray-900">
+        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900">
           <Image
             src="/images/imagen-login.jpg"
             alt="Imagen de Edificio"
@@ -87,8 +137,8 @@ export default function LoginPage() {
         </div>
         {/* DERECHA LOGIN */}
 
-        <div className="flex w-full flex-col justify-center bg-white p-8 md:w-1/2 md:p-12 lgp-16">
-          <div className="w-full mx-auto flex flex-col gap-[32px] space-y-8">
+        <div className="flex w-full flex-col justify-center bg-white md:w-1/2 md:p-8">
+          <div className="w-full mx-auto flex flex-col gap-6 space-y-8">
             <div className="text-center space-y-6 flex flex-col items-center gap-[32px]">
               {/* ENCABEZADO LOGO */}
 
@@ -100,119 +150,137 @@ export default function LoginPage() {
                   className="object-contain"
                 />
               </div>
-
-              {/* TITULO ENCABEZADO */}
-
-              <div className="space-y-1">
-                <p className="text-xs font-body font-semibold tracking-[0.2em] text-gray-500 uppercase">
-                  SOFTWARE DE
-                </p>
-                <h1 className="text-2xl font-body font-bold text-slate-800 md:text-[28px] leading-tight">
-                  ENCUESTA INMOBILIARIA
-                </h1>
-              </div>
             </div>
-
-            {/* ERROR ALERT */}
-            {errorGlobal && (
-              <div className="mb-4 rounded bg-red-100 p-3 text-sm text-red-600">
-                {errorGlobal}
-              </div>
-            )}
 
             {/* FORMULARIO */}
             <section className="flex justify-center">
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-4 w-full max-w-[360px] mx-auto px-6"
+                className="flex flex-col gap-4 w-full max-w-[396px] mx-auto"
               >
-                <div className="space-y-5">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-body text-gray-700 ml-1">
-                      Correo
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        <Mail className="h-4 w-4" />
+                {/* TITULO ENCABEZADO */}
+                <div className="flex justify-center flex-col items-center w-full">
+                  <p className="text-2xs font-body font-semibold tracking-[0.2em] text-neutral-600 uppercase">
+                    SOFTWARE DE
+                  </p>
+                  <h1 className="text-4xl font-body font-bold text-neutral-600 leading-tight text-nowrap">
+                    ENCUESTA INMOBILIARIA
+                  </h1>
+                </div>
+                {/* FINAL TITULO ENCABEZADO */}
+
+                <section className=" flex justify-center flex-col gap-4 px-4">
+                  <div className="flex justify-between flex-col gap-2">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-body text-gray-700 ml-1">
+                        Correo
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                          <Mail className="h-4 w-4" />
+                        </div>
+
+                        <Input
+                          {...form.register("email")}
+                          type="email"
+                          placeholder="Ingresa tu correo"
+                          variant="login"
+                          iconPadding="left"
+                          disabled={alertState?.isBlocked}
+                        />
+                      </div>
+                      {form.formState.errors.email && (
+                        <p className="text-red-500 text-right font-body text-xs">
+                          {form.formState.errors.email.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-body text-gray-600 ml-1">
+                        Clave
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                          <Lock className="h-4 w-4" />
+                        </div>
+
+                        <Input
+                          {...form.register("password")}
+                          type="password"
+                          placeholder="Ingresa tu clave"
+                          variant="login"
+                          iconPadding="left"
+                          disabled={alertState?.isBlocked}
+                        />
+
+                        {/* BOTÓN OJO */}
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50"
+                          disabled={alertState?.isBlocked}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
 
-                      <Input
-                        {...form.register("email")}
-                        type="email"
-                        placeholder="Ingresa tu correo"
-                        variant="login"
-                        iconPadding="left"
-                      />
+                      {form.formState.errors.password && (
+                        <p className="text-red-500 text-right font-body text-xs">
+                          {form.formState.errors.password.message}
+                        </p>
+                      )}
                     </div>
-                    {form.formState.errors.email && (
-                      <p className="text-red-500 text-right font-body text-xs">
-                        {form.formState.errors.email.message}
-                      </p>
-                    )}
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-body text-gray-600 ml-1">
-                      Clave
+
+                  {/* RECORDAR */}
+                  <div className="flex items-center gap-1.5 space-x-2 ml-1">
+                    <input
+                      type="checkbox"
+                      {...form.register("rememberDevice")}
+                      id="remember"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="remember"
+                      className="text-sm font-body text-gray-500 cursor-pointer select-none"
+                    >
+                      Recordar mis datos
                     </label>
-                    <div className="relative">
-                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        <Lock className="h-4 w-4" />
-                      </div>
-
-                      <Input
-                        {...form.register("password")}
-                        type="password"
-                        placeholder="Ingresa tu clave"
-                        variant="login"
-                        iconPadding="left"
-                      />
-                    </div>
-
-                    {form.formState.errors.password && (
-                      <p className="text-red-500 text-right font-body text-xs">
-                        {form.formState.errors.password.message}
-                      </p>
-                    )}
                   </div>
-                </div>
 
-                <div className="flex items-center space-x-2 ml-1">
-                  <input
-                    type="checkbox"
-                    {...form.register("rememberDevice")}
-                    id="remember"
-                    className="h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900 cursor-pointer"
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="text-sm text-gray-500 cursor-pointer select-none"
-                  >
-                    Recordar mis datos
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  <Button
-                    type="button"
-                    variant="outlinePrimary"
-                    size="default"
-                    className="w-full text-blue-800 border-blue-800 hover:bg-blue-50 text-sm font-semibold rounded-lg h-12"
-                    asChild
-                  >
-                    <Link href="/forgot-password">Recuperar mi clave</Link>
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="default"
-                    size="default"
-                    className="w-full bg-[#EBF5FF] text-[#0056b3] hover:bg-blue-100 border-none font-bold text-sm rounded-lg h-12"
-                    disabled={loading}
-                  >
-                    {loading ? "..." : "Ingresar"}
-                  </Button>
-                </div>
+                  <div className="flex justify-between items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outlineSecondary"
+                      size="general"
+                      asChild
+                    >
+                      <Link href="/forgot-password">Recuperar mi clave</Link>
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="secondary"
+                      size="general"
+                      height="sm"
+                      disabled={loading || !form.formState.isValid}
+                    >
+                      {loading ? "..." : "Ingresar"}
+                    </Button>
+                  </div>
+                </section>
               </form>
             </section>
+
+            {/* ERROR ALERT */}
+            {alertState && (
+              <StatusAlert variant={alertState.type} size="sm" height="sm">
+                {alertState.message}
+              </StatusAlert>
+            )}
           </div>
         </div>
       </div>

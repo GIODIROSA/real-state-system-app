@@ -2,7 +2,7 @@
  * @fileoverview Exportaciones centralizadas de componentes UI
  */
 
-export * from './alert';
+export * from './status-alert';
 export * from './button';
 export * from './card';
 export * from './input';

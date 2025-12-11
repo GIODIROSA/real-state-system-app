@@ -9,6 +9,14 @@ export interface LoginCredentials {
   rememberDevice?: boolean;
 }
 
+export interface LoginErrorDetails{
+  failedAttempts: number;
+  remainingAttempts: number;
+  willBlockNext: boolean;
+  blocked?: boolean;
+  reason?: string;
+}
+
 export interface PermissionsResponse {
   success: boolean;
   permissions: {
@@ -26,6 +34,13 @@ export interface BackendResponse<T> {
   status?: number;
 }
 
+export interface BackendErrorResponse{
+  success: false;
+  code: number;
+  message: string;
+  errors?: LoginErrorDetails | null;
+}
+
 // Backend login y backend response manejan la misma estructura
 export type BackendLoginResponse<T> = BackendResponse<T>;
 
@@ -39,6 +54,10 @@ export interface UserPermissions {
   roles: string[];
   permissions: { id: number; name: string }[];
 }
+
+
+
+// ****************************
 
 /**
  * DTO para el payload de 2FA
