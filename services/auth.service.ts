@@ -110,5 +110,30 @@ export const authService = {
       throw error;
       
     }
+  },
+
+  // 6. ACTIVAR CUENTA (Primer ingreso)
+  async activateAccount(email: string, tempPass: string, newPass: string) {
+    try {
+      // Body solicitado:
+      // { "temporal_password": "...", "password": "...", "email": "..." }
+      const { data } = await apiClient.post<BackendResponse<any>>("/auth/activate", {
+        email: email,
+        temporal_password: tempPass,
+        password: newPass
+      });
+
+      if (!data.success) {
+        throw new Error(data.message || "No se pudo activar la cuenta.");
+      }
+      return data;
+    } catch (error) {
+      console.error("Error en activateAccount:", error);
+      throw error;
+    }
   }
+
+
 };
+
+

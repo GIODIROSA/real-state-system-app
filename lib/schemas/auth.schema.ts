@@ -44,8 +44,25 @@ export const ResetPasswordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+// ACTIVATE ACCOUNT
+export const ActivateAccountSchema = z.object({
+  temporalPassword: z.string().min(1, "La contraseña temporal es obligatoria"),
+  password: z
+    .string()
+    .min(8, "Mínimo 8 caracteres")
+    .regex(/[A-Z]/, "Debe contener una mayúscula")
+    .regex(/[a-z]/, "Debe contener una minúscula")
+    .regex(/[0-9]/, "Debe contener un número")
+    .regex(/[^A-Za-z0-9]/, "Debe contener un carácter especial"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
+
 export type LoginFormValues = z.infer<typeof LoginSchema>;
 export type TwoFactorFormValues = z.infer<typeof TwoFactorSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof ForgotPasswordSchema>;
 export type ResetPasswordFormValues = z.infer<typeof ResetPasswordSchema>;
+export type ActivateAccountFormValues = z.infer<typeof ActivateAccountSchema>;
 
