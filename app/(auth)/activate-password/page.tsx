@@ -13,6 +13,7 @@ import { authService } from "@/services/auth.service";
 import { Button, Input, Image, StatusAlert } from "@/components/ui"; 
 import { PasswordRequirements } from "@/components/auth/password-requirements"; 
 import { getErrorMessage } from "@/lib/utils/utils"; 
+import { LogoSEI } from "@/components/ui";
 
 export default function ActivateAccountPage() {
   const router = useRouter();
@@ -100,12 +101,7 @@ export default function ActivateAccountPage() {
                 <Image src="/images/logo-cchc.png" alt="logo cchc" fill className="object-contain" />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-body font-semibold tracking-[0.2em] text-neutral-600 uppercase">
-                  PRIMER INGRESO
-                </p>
-                <h1 className="text-2xl font-body font-bold text-neutral-600 md:text-[26px] leading-tight">
-                  ACTIVAR CUENTA
-                </h1>
+                <LogoSEI />
                 <p className="text-sm text-gray-500 max-w-xs mx-auto">
                   Hola <span className="font-semibold text-blue-900">{email}</span>, configura tu acceso definitivo.
                 </p>

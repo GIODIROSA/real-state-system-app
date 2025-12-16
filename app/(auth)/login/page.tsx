@@ -11,13 +11,7 @@ import { Input } from "@/components/ui";
 import { Image } from "@/components/ui";
 import { StatusAlert } from "@/components/ui";
 import { BackendErrorResponse } from "@/types/auth.types";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { LogoSEI } from "@/components/ui";
 import { useAuth } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/utils/utils";
 import { AxiosError } from "axios";
@@ -96,7 +90,8 @@ export default function LoginPage() {
         else if (status === 401 && errorData.errors) {
           const { remainingAttempts } = errorData.errors;
 
-          let msg = "Usuario o contraseña incorrectos. Si fallas nuevamente tu cuenta será bloqueada por seguridad.";
+          let msg =
+            "Usuario o contraseña incorrectos. Si fallas nuevamente tu cuenta será bloqueada por seguridad.";
           if (remainingAttempts > 0) {
             msg += ` Dispones de ${remainingAttempts} ${
               remainingAttempts === 1 ? "intento más" : "intentos más"
@@ -160,12 +155,7 @@ export default function LoginPage() {
               >
                 {/* TITULO ENCABEZADO */}
                 <div className="flex justify-center flex-col items-center w-full">
-                  <p className="text-2xs font-body font-semibold tracking-[0.2em] text-neutral-600 uppercase">
-                    SOFTWARE DE
-                  </p>
-                  <h1 className="text-4xl font-body font-bold text-neutral-600 leading-tight text-nowrap">
-                    ENCUESTA INMOBILIARIA
-                  </h1>
+                  <LogoSEI />
                 </div>
                 {/* FINAL TITULO ENCABEZADO */}
 

@@ -9,3 +9,7 @@ export * from './input';
 export * from './modal';
 export * from './spinner';
 export * from './uiImagen';
+export * from './logo-sei';
+export * from './label';
+export * from './checkbox';
+export * from './dialog';

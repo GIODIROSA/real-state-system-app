@@ -1,17 +1,32 @@
-/**
- * @fileoverview Tipos e interfaces para el módulo de usuarios
- * Sincronizado con la API node-ts-api-skeleton
- */
+export interface UserRole {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface UserChamber{
+  id: number;
+  name: string;
+  region: string;
+  location?:string;
+}
 
 /**
  * DTO de respuesta de usuario desde la API
  */
 export interface User {
-  id: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   email: string;
-  name: string;
-  role: string;
-  permissions: string[];
+  name?: string;
+  phone_number?: string;
+  account_status?: string; // ACTIVE, BLOCKED etc..
+  roles: UserRole[];
+  chambers?: UserChamber[];
+  cameras?: UserChamber[]; // opcional
+  role?: string; // ej: "Admin"
+  permissions?: string[]; // ej: "[user:read]"
   createdAt: string;
   updatedAt: string;
 }
