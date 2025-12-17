@@ -11,6 +11,8 @@ import {
   User as UserIcon,
   Loader2,
   Save,
+  Link,
+  ArrowLeft,
 } from "lucide-react";
 import { AxiosError } from "axios";
 import { usePermissions } from "@/hooks/use-permissions";
@@ -32,10 +34,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui";
 import { Label } from "@/components/ui";
+import { NativeSelect } from "@/components/ui";
 import PermissionGuard from "@/components/auth/permission-guard";
 
 export default function UserManagementPage() {
@@ -66,6 +68,7 @@ export default function UserManagementPage() {
       phone_number: "",
       role_ids: [],
       chamber_ids: [],
+      account_status: "ACTIVE" as const,
     });
     setIsDialogOpen(true);
   };
@@ -81,6 +84,8 @@ export default function UserManagementPage() {
       phone_number: user.phone_number || "",
       role_ids: user.roles.map((r) => r.id),
       chamber_ids: user.chambers.map((c) => c.id),
+      account_status:
+        (user.account_status as UserFormValues["account_status"]) || "ACTIVE",
     });
 
     setIsDialogOpen(true);
@@ -96,6 +101,7 @@ export default function UserManagementPage() {
       phone_number: "",
       role_ids: [],
       chamber_ids: [],
+      account_status: "ACTIVE",
     },
   });
 
@@ -134,7 +140,7 @@ export default function UserManagementPage() {
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
-          account_status: "ACTIVE",
+          account_status: data.account_status,
         });
         setSuccessMsg("Usuario actualizado exitosamente.");
       } else {
@@ -200,6 +206,18 @@ export default function UserManagementPage() {
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
+            <span>prueba</span>
+           
+              <Button
+                variant="secondary"
+                size="sm"
+                height="sm"
+              >
+                Volver al Panel
+              </Button>
+            
+          </div>
+          <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               Gestión de Usuarios
             </h1>
@@ -211,7 +229,7 @@ export default function UserManagementPage() {
           {/* BOTÓN CREAR (Abre Modal) */}
           {can("user:create") && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <Button variant="secondary" size="sm" height="sm">
+              <Button variant="secondary" size="sm" height="sm" onClick={handleOpenCreate}>
                 <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
               </Button>
 
@@ -276,6 +294,20 @@ export default function UserManagementPage() {
                       {form.formState.errors.phone_number && (
                         <p className="text-xs text-red-500">
                           {form.formState.errors.phone_number.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Estado de la Cuenta</Label>
+                      <NativeSelect {...form.register("account_status")}>
+                        <option value="ACTIVE">Activo</option>
+                        <option value="BLOCKED">Bloqueado</option>
+                        <option value="INACTIVE">Inactivo</option>
+                        <option value="PENDING_CONFIRMATION">Pendiente</option>
+                      </NativeSelect>
+                      {form.formState.errors.account_status && (
+                        <p className="text-xs text-red-500">
+                          {form.formState.errors.account_status.message}
                         </p>
                       )}
                     </div>
@@ -463,7 +495,12 @@ export default function UserManagementPage() {
                       {renderStatusBadge(user.account_status)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={()=> handleOpenEdit(user)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleOpenEdit(user)}
+                      >
                         <Edit className="h-4 w-4 text-gray-500 hover:text-blue-900" />
                       </Button>
                     </td>
