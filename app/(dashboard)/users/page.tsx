@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import {
   Plus,
   Edit,
@@ -11,8 +12,6 @@ import {
   User as UserIcon,
   Loader2,
   Save,
-  Link,
-  ArrowLeft,
 } from "lucide-react";
 import { AxiosError } from "axios";
 import { usePermissions } from "@/hooks/use-permissions";
@@ -200,22 +199,15 @@ export default function UserManagementPage() {
 
   return (
     <PermissionGuard permission="user:read">
-      {" "}
-      {/* Protegemos la página */}
       <div className="p-8 space-y-6">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span>prueba</span>
-           
-              <Button
-                variant="secondary"
-                size="sm"
-                height="sm"
-              >
+            <Link href="/dashboard">
+              <Button variant="secondary" size="sm" className="gap-2">
                 Volver al Panel
               </Button>
-            
+            </Link>
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
@@ -229,7 +221,12 @@ export default function UserManagementPage() {
           {/* BOTÓN CREAR (Abre Modal) */}
           {can("user:create") && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <Button variant="secondary" size="sm" height="sm" onClick={handleOpenCreate}>
+              <Button
+                variant="secondary"
+                size="sm"
+                height="sm"
+                onClick={handleOpenCreate}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
               </Button>
 
@@ -495,14 +492,16 @@ export default function UserManagementPage() {
                       {renderStatusBadge(user.account_status)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleOpenEdit(user)}
-                      >
-                        <Edit className="h-4 w-4 text-gray-500 hover:text-blue-900" />
-                      </Button>
+                      {can("user:update") && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleOpenEdit(user)}
+                        >
+                          <Edit className="h-4 w-4 text-gray-500 hover:text-blue-900" />
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}

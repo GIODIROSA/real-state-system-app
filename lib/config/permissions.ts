@@ -1,24 +1,61 @@
 export type Permission =
-    | "user:read"
-    | "user:create"
-    | "user:edit"
-    | "user:delete"
-    | "chamber:read"
-    | "report:view";
+  | "user:read"
+  | "user:create"
+  | "user:update"
+  | "user:delete"
+  | "data:view"
+  | "data:export"
+  | "data:manage"
+  | "audit:view"
+  | "period:manage"
+  | "config:manage"
+  | "chamber:manage";
 
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  // El SuperAdmin puede hacer todo
+  SuperAdmin: [
+    "user:read",
+    "user:create",
+    "user:update",
+    "data:view",
+    "data:export",
+    "audit:view",
+    "period:manage",
+    "config:manage",
+  ],
 
-    // El SuperAdmin puede hacer todo
-    SuperAdmin: ["user:read", "user:create", "user:edit", "user:delete", "chamber:read", "report:view"],
+  //El Admin puede crear y editar
+  Admin: ["user:read", "user:create"],
 
-    //El Admin puede crear y editar
-    Admin: ["user:read", "user:create", "user:edit", "chamber:read", "report:view"],
+  //El Manager solo puedo leer y editar
+  Manager: ["user:read"],
 
-    //El Manager solo puedo leer y editar
-    Manager: ["user:read", "user:edit", "chamber:read", "report:view"],
+  // El User puede leer usuarios y ver cámaras
+  User: ["user:read"],
 
-    // El User puede leer usuarios y ver cámaras
-    User: ["user:read", "chamber:read"],
+  Guest: [],
 
-    Guest: []
+  // El Auditor acceso Logs
+  Auditor: [],
+
+  // GestorAplicacion
+  GestorAplicacion: ["user:read", "user:create", "user:update", "user:delete"],
+
+  // Gestiona - usuarios de su alcance regional
+  AdministradorSede: [
+    "user:read",
+    "user:create",
+    "user:update",
+    "data:view",
+    "data:export",
+    "audit:view",
+    "period:manage",
+    "config:manage",
+  ],
+
+  // Ingresa y gestiona toda la información
+  CargaDatos: ["user:read", "data:view", "data:manage"],
+
+  // Solo visualiza y exporta información
+  ReporteriaExploracion: ["data:view", "data:export"],
 };
