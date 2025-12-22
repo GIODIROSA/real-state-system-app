@@ -20,7 +20,7 @@ export function Header() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <header className="absolute right-[24%] w-full max-w-[1108px] flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm z-20">
+    <header className="relative flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm z-20">
       
       {/* --- LADO IZQUIERDO: Saludo --- */}
       <div>

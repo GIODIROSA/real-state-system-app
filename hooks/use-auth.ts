@@ -1,6 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { User } from "@/types/user.types";
 import { useRouter } from "next/navigation";
+import {
+  LoginCredentials,
+  LoginResponse,
+  TwoFactorPayload,
+} from "@/types/auth.types";
+import { authService } from "@/services/auth.service";
 
 export function useAuth() {
   const router = useRouter();
@@ -15,9 +21,8 @@ export function useAuth() {
     const initAuth = () => {
       try {
         if (typeof window !== "undefined") {
-          // Solo buscamos al usuario, porque el token vive seguro en la Cookie
           const storedUser = localStorage.getItem("user");
-          
+
           if (storedUser) {
             setUser(JSON.parse(storedUser));
           }
@@ -33,24 +38,75 @@ export function useAuth() {
     initAuth();
   }, []);
 
-  // 2. Función LOGIN
-  // CORRECCIÓN: Ahora acepta directamente un objeto 'User'
-  const login = useCallback((userData: User) => {
-    try {
-      setUser(userData);
-      // Guardamos solo datos visuales (nombre, email, rol) para sobrevivir al F5
-      localStorage.setItem("user", JSON.stringify(userData));
-    } catch (error) {
-      console.error("Error al guardar sesión:", error);
+  const handleSessionSuccess = useCallback((userData: User, token?: string) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    if (token) {
+      localStorage.setItem("token", token);
     }
   }, []);
 
-  // 3. Función LOGOUT
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem("user");
-    // Opcional: Aquí podrías llamar al servicio authService.logout() para matar la cookie
-    router.push("/login");
+  // 2. Función LOGIN
+  const login = useCallback(
+    async (credentials: LoginCredentials): Promise<LoginResponse> => {
+      try {
+        const response = await authService.login(credentials);
+
+        // CASO A: Requiere 2FA
+        if (response.requires_mfa) {
+          return response;
+        }
+
+        // CASO B: Login directo (Éxito y no requiere MFA)
+        if (response.success && !response.requires_mfa) {
+          handleSessionSuccess(response.user, response.token);
+        }
+
+        return response;
+      } catch (error) {
+        console.error("Error en login:", error);
+        throw error;
+      }
+    },
+    [handleSessionSuccess]
+  );
+
+  // 3. Función VERIFICAR 2FA
+  const verify2FA = useCallback(
+    async (code: string, email: string) => {
+      try {
+        const payload: TwoFactorPayload = { code };
+        const response = await authService.verify2FA(payload);
+
+        if (response.success) {
+
+          const userWithRoles = await authService.getUserProfile(email);
+
+          handleSessionSuccess(userWithRoles, response.token);
+        }
+
+        return response;
+      } catch (error) {
+        console.error("Error en verify2FA:", error);
+        throw error;
+      }
+    },
+    [handleSessionSuccess]
+  );
+
+  // 4. Función LOGOUT
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Error en logout:", error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
   }, [router]);
 
   return {
@@ -58,6 +114,7 @@ export function useAuth() {
     isAuthenticated,
     loading,
     login,
+    verify2FA,
     logout,
   };
 }

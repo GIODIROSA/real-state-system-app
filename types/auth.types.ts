@@ -1,37 +1,86 @@
 import { User } from "./user.types";
 
-/**
- * DTO para el formulario de login
- */
+
+// ==========================================
+// 1. INPUTS (Datos que envías al backend)
+// ==========================================
+
 export interface LoginCredentials {
   email: string;
   password: string;
   rememberDevice?: boolean;
 }
 
-export interface LoginErrorDetails{
+export interface TwoFactorPayload {
+  // email?: string;
+  code: string;
+}
+
+export interface ChangePasswordDTO {
+  oldPassword: string;
+  newPassword: string;
+}
+
+
+export interface ResetPasswordDTO {
+  token: string;
+  newPassword: string;
+}
+
+// ==========================================
+// 2. ESTRUCTURAS DE MFA 
+// ==========================================
+
+export interface MfaTokenData {
+  expires_in: number;
+  expires_at: string;
+}
+
+// ==========================================
+// 3. RESPUESTAS DEL LOGIN 
+// ==========================================
+
+
+// caso A: Requiere MFA. 
+export interface LoginResponseMfaRequired {
+  success: true;
+  requires_mfa: true; 
+  mfa_pending: true;
+  message: string;
+  mfa_token: MfaTokenData;
+  user?: never;
+  token?: never;
+}
+
+// caso B: Login exitoso directo
+export interface LoginResponseSuccess {
+  success: true;
+  requires_mfa: false;
+  message: string;
+  
+  // Datos finales de sesión
+  token: string;
+  user: User;
+  
+  // No existen datos de pendiente
+  mfa_pending?: false;
+  mfa_token?: never;
+}
+
+// Tipo Principal para usar en auth.service.ts
+
+export type LoginResponse = LoginResponseMfaRequired | LoginResponseSuccess;
+
+// ==========================================
+// 4. GENÉRICOS Y ERRORES 
+// ==========================================
+
+export interface LoginErrorDetails {
   failedAttempts: number;
   remainingAttempts: number;
   willBlockNext: boolean;
   blocked?: boolean;
   reason?: string;
-}
-
-export interface PermissionsResponse {
-  success: boolean;
-  permissions: {
-    id: number;
-    name: string;
-  }[];
-}
-
-//Lo que responde el backend actualmente
-
-export interface BackendResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  status?: number;
 }
 
 export interface BackendErrorResponse{
@@ -41,14 +90,28 @@ export interface BackendErrorResponse{
   errors?: LoginErrorDetails | null;
 }
 
-// Backend login y backend response manejan la misma estructura
-export type BackendLoginResponse<T> = BackendResponse<T>;
 
-// Usar internamente
-export interface AuthResponse {
-  token: string;
-  user: User;
+// ****************************
+
+
+// --- 5. RESPUESTAS GENERICAS ---
+
+export interface PermissionsResponse {
+  success: boolean;
+  permissions: {
+    id: number;
+    name: string;
+  }[];
 }
+
+
+export interface BackendResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  status?: number;
+}
+
 
 export interface UserPermissions {
   roles: string[];
@@ -57,36 +120,4 @@ export interface UserPermissions {
 
 
 
-// ****************************
 
-/**
- * DTO para el payload de 2FA
- */
-export interface TwoFactorPayload {
-  email: string;
-  code: string;
-}
-
-/**
- * DTO para la respuesta de autenticación
- */
-export interface AuthResponse {
-  user: User;
-  token: string;
-}
-
-/**
- * DTO para el formulario de cambio de contraseña
- */
-export interface ChangePasswordDTO {
-  oldPassword: string;
-  newPassword: string;
-}
-
-/**
- * DTO para el formulario de reseteo de contraseña
- */
-export interface ResetPasswordDTO {
-  token: string;
-  newPassword: string;
-}

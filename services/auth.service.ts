@@ -1,19 +1,40 @@
 import apiClient from "@/lib/api/client";
 import {
   LoginCredentials,
-  BackendLoginResponse,
+  LoginResponse,
+  LoginResponseSuccess,
+  TwoFactorPayload,
   PermissionsResponse,
-  BackendResponse 
+  BackendResponse,
 } from "@/types/auth.types";
 import { User } from "@/types/user.types";
 // import { verify } from "crypto";
 
 export const authService = {
-  // 1. INICIAR SESIÓN (Setea la cookies)
-  async login(credentials: LoginCredentials) {
-    const { data } = await apiClient.post<BackendLoginResponse<any>>(
+  // 1. INICIAR SESIÓN
+  async login(credentials: LoginCredentials): Promise<LoginResponse> {
+    const payloadDePrueba = {
+      ...credentials,
+      email_test: "gdirosa@flagare.cl",
+    };
+
+    const { data } = await apiClient.post<LoginResponse>(
       "/auth/login",
-      credentials
+      payloadDePrueba
+    );
+
+    //   const { data } = await apiClient.post<LoginResponse>(
+    //   "/auth/login",
+    //   credentials
+    // );
+    return data;
+  },
+
+  // 1.5 Verificar 2FA
+  async verify2FA(payload: TwoFactorPayload): Promise<LoginResponseSuccess> {
+    const { data } = await apiClient.post<LoginResponseSuccess>(
+      "/auth/mfa/validate",
+      payload
     );
     return data;
   },
@@ -22,31 +43,33 @@ export const authService = {
   async getUserProfile(email: string): Promise<User> {
     try {
       const { data } = await apiClient.get<
-        BackendLoginResponse<PermissionsResponse>
+        BackendResponse<PermissionsResponse>
       >("/permissions/user", {
-        data: { email: email },
+        params: { email: email },
       });
 
       if (!data.success || !data.data) {
         throw new Error("No se pudieron cargar los permisos del usuario");
       }
 
-      const userData= data.data;
+      const userData = data.data;
 
       // 3.0 Mapea los permisos
-      const flattenedPermissions = userData.permissions.map(p => p.name);
+      const flattenedPermissions = userData.permissions.map((p) => p.name);
 
       // 3.1 Construir usuario
 
       const user: User = {
-        id: email,
+        id: typeof email === "string" ? parseInt(email) : 0,
         email: email,
+        first_name: email.split("@")[0],
+        last_name: "",
         name: email.split("@")[0],
         role: userData.roles[0] || "User",
+        roles: [],
         permissions: flattenedPermissions,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        // opcional guardar los permisos restante.
       };
 
       return user;
@@ -59,56 +82,56 @@ export const authService = {
   // 3. LOGOUT
   async logout() {
     try {
-      await apiClient.post("/autg/logout");
+      await apiClient.post("/auth/logout");
     } catch (error) {
       //silent fail
     }
   },
 
   // 4. FORGOT PASSWORD
-  async forgotPassword(email: string){
-
+  async forgotPassword(email: string) {
     //Endpoint: POST /api/auth/forgot-password
     // Body: {"email": "test@test.com"}
 
-    try{
-      const {data} = await apiClient.post<BackendResponse<any>>("/auth/forgot-password", {
-        email: email,
-        email_test: "gdirosa@flagare.cl"
-      });
+    try {
+      const { data } = await apiClient.post<BackendResponse<any>>(
+        "/auth/forgot-password",
+        {
+          email: email,
+          email_test: "gdirosa@flagare.cl",
+        }
+      );
 
-      if(!data.success){
+      if (!data.success) {
         throw new Error(data.message || "No se pudo procesar la solicitud.");
       }
 
       return data;
-
-    }catch(error){
-
+    } catch (error) {
       console.error("Error en fogortPassword:", error);
       throw error;
-
     }
   },
 
   // 5. RESTABLECER CONTRASEÑA
-  async resetPassword(token: string, password: string){
+  async resetPassword(token: string, password: string) {
     try {
-      const {data} = await apiClient.post<BackendResponse<any>>("/auth/reset-password", {
-        token,
-        password
-      });
+      const { data } = await apiClient.post<BackendResponse<any>>(
+        "/auth/reset-password",
+        {
+          token,
+          password,
+        }
+      );
 
-      if(!data.success){
-        throw new Error(data.message || "No se pudo restablecer la contraseña")
+      if (!data.success) {
+        throw new Error(data.message || "No se pudo restablecer la contraseña");
       }
 
       return data;
-
     } catch (error) {
       console.error("Error en resetPassword:", error);
       throw error;
-      
     }
   },
 
@@ -117,11 +140,14 @@ export const authService = {
     try {
       // Body solicitado:
       // { "temporal_password": "...", "password": "...", "email": "..." }
-      const { data } = await apiClient.post<BackendResponse<any>>("/auth/activate", {
-        email: email,
-        temporal_password: tempPass,
-        password: newPass
-      });
+      const { data } = await apiClient.post<BackendResponse<any>>(
+        "/auth/activate",
+        {
+          email: email,
+          temporal_password: tempPass,
+          password: newPass,
+        }
+      );
 
       if (!data.success) {
         throw new Error(data.message || "No se pudo activar la cuenta.");
@@ -131,9 +157,5 @@ export const authService = {
       console.error("Error en activateAccount:", error);
       throw error;
     }
-  }
-
-
+  },
 };
-
-
