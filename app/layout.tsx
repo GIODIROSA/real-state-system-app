@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { Lora, Roboto } from "next/font/google";
 import "./globals.css";
+import { GlobalErrorProvider } from "@/context/global-error-context";
 
-const lora = Lora({ 
-  subsets: ['latin'],
-  variable: '--font-lora' // <--- Este nombre debe coincidir con el de tu CSS
-})
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-lora", 
+});
 
-const roboto = Roboto({ 
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  variable: '--font-roboto'
-})
+const roboto = Roboto({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-roboto",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,10 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body
-        className={`${lora.variable} ${roboto.variable} antialiased`}
-      >
-        {children}
+      <body className={`${lora.variable} ${roboto.variable} antialiased`}>
+        <GlobalErrorProvider>{children}</GlobalErrorProvider>
       </body>
     </html>
   );

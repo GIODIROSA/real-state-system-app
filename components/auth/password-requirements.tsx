@@ -1,4 +1,6 @@
-import { Check, X } from "lucide-react";
+"use client";
+
+import { Check, X, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PasswordRequirementsProps {
@@ -6,38 +8,70 @@ interface PasswordRequirementsProps {
 }
 
 export function PasswordRequirements({ password = "" }: PasswordRequirementsProps) {
-  // Definimos las reglas con sus validaciones
+  // Definimos las reglas según tu solicitud
   const requirements = [
-    { label: "Mínimo 8 caracteres", pass: password.length >= 8 },
-    { label: "Al menos una mayúscula", pass: /[A-Z]/.test(password) },
-    { label: "Al menos una minúscula", pass: /[a-z]/.test(password) },
-    { label: "Al menos un número", pass: /[0-9]/.test(password) },
-    { label: "Al menos un carácter especial", pass: /[^A-Za-z0-9]/.test(password) },
+    {
+      id: 1,
+      label: "Mínimo 8 caracteres",
+      regex: /.{8,}/,
+    },
+    {
+      id: 2,
+      label: "Al menos una letra mayúscula",
+      regex: /[A-Z]/,
+    },
+    {
+      id: 3,
+      label: "Al menos una letra minúscula",
+      regex: /[a-z]/,
+    },
+    {
+      id: 4,
+      label: "Un número o carácter especial",
+      regex: /[0-9!@#$%^&*(),.?":{}|<>]/,
+    },
   ];
 
   return (
-    <div className="rounded-lg bg-gray-50 p-4 space-y-3 border border-gray-100">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-        Requisitos de seguridad:
+    <div className="space-y-2 rounded-lg bg-gray-50 p-3 border border-gray-100">
+      <p className="text-xs font-semibold text-gray-500 mb-2 font-body">
+        La contraseña debe contener:
       </p>
-      <ul className="space-y-2">
-        {requirements.map((req, index) => (
-          <li key={index} className="flex items-center gap-2 text-sm transition-colors duration-200">
-            <div className={cn(
-              "flex h-4 w-4 items-center justify-center rounded-full border",
-              req.pass 
-                ? "border-green-500 bg-green-500 text-white" 
-                : "border-gray-300 bg-transparent text-transparent"
-            )}>
-              <Check className="h-3 w-3" />
-            </div>
-            <span className={cn(
-              req.pass ? "text-green-700 font-medium" : "text-gray-500"
-            )}>
-              {req.label}
-            </span>
-          </li>
-        ))}
+      <ul className="space-y-1">
+        {requirements.map((req) => {
+          // Lógica de Estado
+          const isEmpty = password.length === 0;
+          const isMet = req.regex.test(password);
+
+          // Determinar color e ícono
+          let icon = <Circle className="h-3.5 w-3.5" />; 
+          let colorClass = "text-gray-400 font-body";
+
+          if (!isEmpty) {
+            if (isMet) {
+              // Cumple (Verde)
+              icon = <Check className="h-3.5 w-3.5" />;
+              colorClass = "text-green-600 font-body";
+            } else {
+              // No cumple (Rojo)
+              icon = <X className="h-3.5 w-3.5" />;
+              colorClass = "text-red-500 font-body";
+            }
+          }
+
+          return (
+            <li
+              key={req.id}
+              className={cn(
+                "flex items-center gap-2 text-xs transition-colors duration-200",
+                colorClass
+              )}
+            >
+              <div className="shrink-0">{icon}</div>
+              <span>{req.label}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

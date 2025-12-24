@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Spinner } from '@/components/ui/spinner';
+import { LoadingModal } from '@/components/ui/loading';
 
 /**
  * @fileoverview Página principal de la aplicación.
@@ -29,7 +29,7 @@ export default function RootPage() {
   // Muestra una pantalla de carga mientras se verifica la sesión del usuario
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Spinner />
+     <LoadingModal text="Verificando sesión..." />
     </div>
   );
 }

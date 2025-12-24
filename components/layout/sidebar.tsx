@@ -62,7 +62,7 @@ export function Sidebar() {
                   {/* Icono */}
                   <item.icon
                     className={cn(
-                      "mr-3 h-5 w-5 flex-shrink-0",
+                      "mr-3 h-5 w-5 shrink-0",
                       isActive ? "text-white" : "text-slate-500 group-hover:text-slate-700"
                     )}
                   />

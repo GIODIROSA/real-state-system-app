@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { AxiosError } from "axios";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
+import { useGlobalError } from "@/context/global-error-context";
 
 // --- SCHEMA LOCAL PARA 2FA ---
 const TwoFactorSchema = z.object({
@@ -27,10 +28,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, verify2FA } = useAuth(); // Usamos las funciones del nuevo Hook
   const [loading, setLoading] = useState(false);
+  const { triggerGlobalError } = useGlobalError();
 
   // --- ESTADOS NUEVOS PARA 2FA ---
   const [step, setStep] = useState<"CREDENTIALS" | "MFA">("CREDENTIALS");
   const [mfaData, setMfaData] = useState<MfaTokenData | null>(null);
+  const [tempEmail, setTempEmail] = useState<string>("");
 
   // CONTROLA LA ALERTA Y EL BLOQUEO
   const [alertState, setAlertState] = useState<{
@@ -73,20 +76,25 @@ export default function LoginPage() {
       const response = await login(data);
 
       if (response.requires_mfa) {
+        setTempEmail(data.email);
         // CASO A: REQUIERE 2FA
-        setMfaData(response.mfa_token); 
-        setStep("MFA"); 
+        setMfaData(response.mfa_token);
+        setStep("MFA");
       } else {
-        // CASO B: LOGIN DIRECTO 
-    
+        // CASO B: LOGIN DIRECTO
+
         if (response.user) {
-             router.push("/dashboard");
+          router.push("/dashboard");
         } else {
-             const userWithRoles = await authService.getUserProfile(data.email);
-             router.push("/dashboard");
+          const userWithRoles = await authService.getUserProfile(data.email);
+          router.push("/dashboard");
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        triggerGlobalError();
+        return;
+      }
       handleLoginError(error);
     } finally {
       setLoading(false);
@@ -97,17 +105,27 @@ export default function LoginPage() {
   const onOtpSubmit = async (data: TwoFactorFormValues) => {
     setLoading(true);
     setAlertState(null);
+
+    console.log("Intentando verificar 2FA con:", {
+      code: data.code,
+      email: tempEmail,
+    });
+
     try {
-      const email = form.getValues("email");
-      await verify2FA(data.code, email);
+
+      if (!tempEmail) {
+         throw new Error("No se ha detectado el email de sesión. Intenta ingresar nuevamente.");
+      }
+      await verify2FA(data.code, tempEmail);
       router.push("/dashboard");
     } catch (error) {
+      console.error("Fallo 2FA:", error);
       setAlertState({
         type: "error",
         message: "El código ingresado es incorrecto o ha expirado.",
         isBlocked: false,
       });
-      otpForm.setValue("code", ""); 
+      otpForm.setValue("code", "");
     } finally {
       setLoading(false);
     }
@@ -121,23 +139,26 @@ export default function LoginPage() {
 
       // CASO 1: CUENTA BLOQUEADA (403)
       if (status === 403) {
+        let msg =
+          "Usuario o contraseña incorrecta. Favor contactar al Administrador.";
         setAlertState({
           type: "error",
-          message:
-            "Tu cuenta ha sido bloqueada. Un administrador revisará tu caso y te notificaremos cuando se resuelva la situación.",
+          message: msg,
           isBlocked: true,
         });
       }
       // CASO 2: CREDENCIALES INVÁLIDAS (401)
       else if (status === 401 && errorData.errors) {
-        const { remainingAttempts } = errorData.errors;
+        // const { remainingAttempts } = errorData.errors;
+        // let msg =
+        //   "Usuario o contraseña incorrectos. Si fallas nuevamente tu cuenta será bloqueada por seguridad.";
+        // if (remainingAttempts > 0) {
+        //   msg += ` Dispones de ${remainingAttempts} ${
+        //     remainingAttempts === 1 ? "intento más" : "intentos más"
+        //   } antes del bloqueo de tu cuenta.`;
+        // }
         let msg =
-          "Usuario o contraseña incorrectos. Si fallas nuevamente tu cuenta será bloqueada por seguridad.";
-        if (remainingAttempts > 0) {
-          msg += ` Dispones de ${remainingAttempts} ${
-            remainingAttempts === 1 ? "intento más" : "intentos más"
-          } antes del bloqueo de tu cuenta.`;
-        }
+          "Usuario o contraseña incorrecta. Favor contactar al Administrador.";
         setAlertState({
           type: "warning",
           message: msg,
@@ -153,11 +174,11 @@ export default function LoginPage() {
         });
       }
     } else {
-       setAlertState({
-          type: "error",
-          message: "Error de conexión.",
-          isBlocked: false,
-        });
+      setAlertState({
+        type: "error",
+        message: "Error de conexión.",
+        isBlocked: false,
+      });
     }
   };
 
@@ -165,7 +186,7 @@ export default function LoginPage() {
     <section className="flex min-h-screen w-full items-center justify-center bg-brand-50 p-4">
       <div className="relative flex gap-4 w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
         {/* IZQUIERDA IMAGEN */}
-        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900">
+        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900 max-w-[476px]">
           <Image
             src="/images/imagen-login.jpg"
             alt="Imagen de Edificio"
@@ -178,7 +199,6 @@ export default function LoginPage() {
         <div className="flex w-full flex-col justify-center bg-white md:w-1/2 md:p-8">
           <div className="w-full mx-auto flex flex-col gap-6 space-y-8">
             <div className="text-center space-y-6 flex flex-col items-center gap-[32px]">
-              
               {/* ENCABEZADO LOGO */}
               <div className="relative mx-auto h-16 w-48">
                 <Image
@@ -192,7 +212,6 @@ export default function LoginPage() {
 
             {/* CONTENEDOR PRINCIPAL DEL FORMULARIO */}
             <section className="flex justify-center flex-col items-center w-full max-w-[396px] mx-auto animate-in fade-in duration-300">
-              
               {/* TITULO DINÁMICO */}
               <div className="flex justify-center flex-col items-center w-full mb-6">
                 {step === "CREDENTIALS" ? (
@@ -202,7 +221,9 @@ export default function LoginPage() {
                     <div className="bg-green-100 p-3 rounded-full inline-flex">
                       <ShieldCheck className="h-8 w-8 text-green-700" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-800">Verificación 2FA</h2>
+                    <h2 className="text-xl font-bold text-gray-800">
+                      Verificación 2FA
+                    </h2>
                     <p className="text-sm text-gray-500">
                       Ingresa el código enviado a tu correo
                     </p>
@@ -214,9 +235,9 @@ export default function LoginPage() {
               {step === "CREDENTIALS" && (
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="flex flex-col gap-4 w-full"
+                  className="flex flex-col gap-4 w-full pt-[30px]"
                 >
-                  <section className="flex justify-center flex-col gap-4 px-4">
+                  <section className="flex justify-center flex-col gap-4 px-4 ">
                     {/* INPUT EMAIL */}
                     <div className="space-y-1.5">
                       <label className="text-sm font-body text-gray-700 ml-1">
@@ -296,7 +317,7 @@ export default function LoginPage() {
                     </div> */}
 
                     {/* BOTONES DE ACCIÓN */}
-                    <div className="flex justify-between items-center gap-4 pt-2">
+                    <div className="flex flex-col-reverse xl:flex-row xl:justify-between xl:items-center gap-4 pt-2">
                       <Button
                         type="button"
                         variant="outlineSecondary"
@@ -310,7 +331,11 @@ export default function LoginPage() {
                         variant="secondary"
                         size="general"
                         height="sm"
-                        disabled={loading || !form.formState.isValid || !!alertState?.isBlocked}
+                        disabled={
+                          loading ||
+                          !form.formState.isValid ||
+                          !!alertState?.isBlocked
+                        }
                       >
                         {loading ? "..." : "Ingresar"}
                       </Button>
@@ -339,7 +364,7 @@ export default function LoginPage() {
                           autoComplete="one-time-code"
                         />
                       </div>
-                      
+
                       {otpForm.formState.errors.code && (
                         <p className="text-red-500 text-center font-body text-xs">
                           {otpForm.formState.errors.code.message}
@@ -349,7 +374,11 @@ export default function LoginPage() {
                       {/* INFO EXPIRACIÓN */}
                       {mfaData && (
                         <p className="text-xs text-center text-gray-400">
-                          El código expira a las {new Date(mfaData.expires_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          El código expira a las{" "}
+                          {new Date(mfaData.expires_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       )}
                     </div>
@@ -358,7 +387,7 @@ export default function LoginPage() {
                     <div className="flex flex-col gap-3 pt-2">
                       <Button
                         type="submit"
-                        variant="secondary" 
+                        variant="secondary"
                         size="general"
                         height="sm"
                         className="w-full"
@@ -370,9 +399,9 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                           setStep("CREDENTIALS");
-                           setAlertState(null);
-                           otpForm.reset();
+                          setStep("CREDENTIALS");
+                          setAlertState(null);
+                          otpForm.reset();
                         }}
                         className="flex items-center justify-center w-full text-sm text-gray-500 hover:text-gray-800 transition-colors"
                       >
@@ -382,7 +411,6 @@ export default function LoginPage() {
                   </section>
                 </form>
               )}
-
             </section>
 
             {/* ERROR ALERT */}
@@ -393,7 +421,6 @@ export default function LoginPage() {
                 </StatusAlert>
               </div>
             )}
-            
           </div>
         </div>
       </div>

@@ -7,29 +7,41 @@ import {
   TwoFactorPayload,
 } from "@/types/auth.types";
 import { authService } from "@/services/auth.service";
+import { useGlobalError } from "@/context/global-error-context";
 
 export function useAuth() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { triggerGlobalError } = useGlobalError();
 
   // Booleano útil para proteger rutas fácilmente
   const isAuthenticated = !!user;
 
   // 1. Cargar sesión al iniciar (Rehidratación)
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       try {
         if (typeof window !== "undefined") {
-          const storedUser = localStorage.getItem("user");
+          const storedUserStr = localStorage.getItem("user");
 
-          if (storedUser) {
-            setUser(JSON.parse(storedUser));
+          if (storedUserStr) {
+            const parsedUser= JSON.parse(storedUserStr);
+            setUser(parsedUser);
+            await authService.getUserProfile(parsedUser.email);
           }
         }
-      } catch (error) {
-        console.error("Error al recuperar sesión: ", error);
-        localStorage.removeItem("user");
+      } catch (error: any) {
+        console.error("Error al validar sesión: ", error);
+        if (
+          error.message === "Network Error" ||
+          error.response?.status >= 500
+        ) {
+          triggerGlobalError();
+        } else {
+          localStorage.removeItem("user");
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,10 +92,9 @@ export function useAuth() {
         const response = await authService.verify2FA(payload);
 
         if (response.success) {
-
           const userWithRoles = await authService.getUserProfile(email);
 
-          handleSessionSuccess(userWithRoles, response.token);
+          handleSessionSuccess(userWithRoles);
         }
 
         return response;

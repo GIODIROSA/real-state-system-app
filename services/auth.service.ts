@@ -10,6 +10,8 @@ import {
 import { User } from "@/types/user.types";
 // import { verify } from "crypto";
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const authService = {
   // 1. INICIAR SESIÓN
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -36,20 +38,28 @@ export const authService = {
       "/auth/mfa/validate",
       payload
     );
+    console.log("✅ DEBUG - Respuesta de verify2FA:", data);
     return data;
   },
 
   //2. Obtener perfil y roles
-  async getUserProfile(email: string): Promise<User> {
+  async getUserProfile(email: string, retries = 3): Promise<User> {
     try {
+      console.log("🔍 DEBUG - Preparando petición de Permisos:", {
+        email,
+      });
+
       const { data } = await apiClient.get<
         BackendResponse<PermissionsResponse>
       >("/permissions/user", {
         params: { email: email },
+        withCredentials: true,
       });
 
+      console.log("✅ DEBUG - Respuesta del servidor:", data);
+
       if (!data.success || !data.data) {
-        throw new Error("No se pudieron cargar los permisos del usuario");
+        throw new Error("Datos de permisos incompletos");
       }
 
       const userData = data.data;
@@ -66,15 +76,30 @@ export const authService = {
         last_name: "",
         name: email.split("@")[0],
         role: userData.roles[0] || "User",
-        roles: [],
+        roles: userData.roles,
         permissions: flattenedPermissions,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       return user;
-    } catch (error) {
-      console.error("Error obtenindo permisos:", error);
+    } catch (error: any) {
+      console.warn(
+        `⚠️ Intento fallido obteniendo permisos. Quedan ${retries} intentos.`
+      );
+
+      if (
+        retries > 0 &&
+        (error.response?.status === 500 || error.code === "ERR_NETWORK")
+      ) {
+        await wait(1000);
+
+        return authService.getUserProfile(email, retries - 1);
+      }
+
+      console.error(
+        "❌ No se pudo recuperar el usuario real tras varios intentos."
+      );
       throw error;
     }
   },

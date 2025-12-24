@@ -4,7 +4,7 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Spinner } from "@/components/ui";
+import { LoadingModal } from "@/components/ui/loading";
 import { Button } from "@/components/ui";
 
 interface PermissionGuardProps {
@@ -40,10 +40,7 @@ export default function PermissionGuard({
   //5. Mientras carga
   if (loading) {
     <div className="flex min-h-[50vh] items-center justify-center">
-      <Spinner />
-      <p className="text-gray-400 text-sm animate-pulse">
-        Verificando permisos...
-      </p>
+      <LoadingModal text="Verificando permisos..." />
     </div>;
   }
 

@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 
 // Componentes UI
-import { Spinner } from "@/components/ui/spinner";
+import { LoadingModal } from "@/components/ui/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -36,18 +36,18 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+        <LoadingModal />
       </div>
     );
   }
 
   if (!user) return null;
 
-  console.log("=== DEBUG DASHBOARD ===");
-  console.log("1. Usuario en memoria:", user);
-  console.log("2. Roles detectados:", user.roles);
-  console.log("3. ¿Tiene permiso 'user:read'?:", can("user:read"));
-  console.log("=======================");
+  // console.log("=== DEBUG DASHBOARD ===");
+  // console.log("1. Usuario en memoria:", user);
+  // console.log("2. Roles detectados:", user.roles);
+  // console.log("3. ¿Tiene permiso 'user:read'?:", can("user:read"));
+  // console.log("=======================");
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-500">

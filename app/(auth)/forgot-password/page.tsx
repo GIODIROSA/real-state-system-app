@@ -1,28 +1,16 @@
-
-/**
- *  ¿Cuál es su propósito? Iniciar el proceso. Su única misión es permitir que un usuario, que ha olvidado su
-     contraseña, se identifique con algo que solo él debería saber: su correo electrónico.
-   * ¿Qué hace el usuario aquí? Simplemente introduce su dirección de correo y hace clic en "Enviar Enlace".
-   * ¿Qué hace el sistema? En un escenario real, el backend recibiría este correo, generaría un "token" (un código
-     secreto, único y de corta duración) y enviaría un email a esa dirección con un enlace especial, que se vería
-     así: https://tuapp.com/reset-password?token=ABC123XYZ.
- */
-
-
 "use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
 
+// Imports de lógica y UI
 import { ForgotPasswordSchema, ForgotPasswordFormValues } from "@/lib/schemas/auth.schema";
 import { authService } from "@/services/auth.service";
 import { getErrorMessage } from "@/lib/utils/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button, Input, Image, StatusAlert, LogoSEI } from "@/components/ui";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -38,92 +26,168 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setSuccessMessage("");
     setErrorMessage("");
+
     try {
-    
       // 1. Llamada al servicio
-      await authService.forgotPassword(data.email)
+      await authService.forgotPassword(data.email);
 
       // 2. Mensaje de ÉXITO
-      setSuccessMessage("Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña en breve.");
+      setSuccessMessage(
+        "Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña en breve."
+      );
       form.reset();
-
     } catch (error) {
-
       setErrorMessage(getErrorMessage(error));
-
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md shadow-xl border-t-4 border-blue-900">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-blue-900">
-            Recuperar Contraseña
-          </CardTitle>
-          <CardDescription>
-            Ingresa tu correo institucional y te enviaremos las instrucciones.
-          </CardDescription>
-        </CardHeader>
+    <section className="flex min-h-screen w-full items-center justify-center bg-brand-50 p-4">
+      <div className="relative flex gap-4 w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
         
-        <CardContent>
-          {successMessage ? (
-            // VISTA DE ÉXITO
-            <div className="text-center space-y-6 animate-in fade-in duration-500">
-              <div className="p-4 bg-green-50 text-green-800 rounded-md border border-green-200">
-                <p className="font-semibold text-lg">¡Solicitud Enviada!</p>
-                <p className="text-sm mt-2 text-green-700">{successMessage}</p>
-              </div>
-              <Button asChild className="w-full bg-blue-900 hover:bg-blue-800">
-                <Link href="/login">Volver al Login</Link>
-              </Button>
-            </div>
-          ) : (
-            // VISTA DEL FORMULARIO
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
-              {errorMessage && (
-                <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200 flex items-center gap-2">
-                   <span>⚠️</span> {errorMessage}
-                </div>
-              )}
+        {/* --- IZQUIERDA: IMAGEN (Igual que Login) --- */}
+        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900">
+          <Image
+            src="/images/imagen-login.jpg"
+            alt="Imagen de Edificio"
+            fill
+            variant="login"
+            className="object-cover opacity-80"
+          />
+        </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <Input
-                    {...form.register("email")}
-                    className="pl-10"
-                    placeholder="ejemplo@cchc.cl"
-                    type="email"
-                    disabled={loading} // Bloqueamos input mientras carga
-                  />
-                </div>
-                {form.formState.errors.email && (
-                  <p className="text-xs text-red-600">{form.formState.errors.email.message}</p>
+        {/* --- DERECHA: FORMULARIO --- */}
+        <div className="flex w-full flex-col justify-center bg-white md:w-1/2 md:p-8">
+          <div className="w-full mx-auto flex flex-col gap-6 space-y-8">
+            
+            {/* ENCABEZADO Y LOGO */}
+            <div className="text-center space-y-6 flex flex-col items-center gap-[32px]">
+              <div className="relative mx-auto h-16 w-48">
+                <Image
+                  src="/images/logo-cchc.png"
+                  alt="logo cchc"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+
+            {/* CONTENEDOR PRINCIPAL */}
+            <section className="flex justify-center flex-col items-center w-full max-w-[396px] mx-auto animate-in fade-in duration-300">
+              
+              {/* TÍTULO */}
+              <div className="flex justify-center flex-col items-center w-full mb-6 text-center">
+                {!successMessage ? (
+                   <>
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">Recuperar Contraseña</h2>
+                    <p className="text-sm text-gray-500 px-4">
+                      Ingresa tu correo institucional y te enviaremos las instrucciones.
+                    </p>
+                   </>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-green-100 p-3 rounded-full mb-4">
+                        <CheckCircle2 className="h-8 w-8 text-green-700" />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">¡Solicitud Enviada!</h2>
+                  </div>
                 )}
               </div>
 
-              <Button type="submit" className="w-full bg-blue-900 hover:bg-blue-800" disabled={loading}>
-                {loading ? "Enviando solicitud..." : "Enviar Enlace"}
-              </Button>
-            </form>
-          )}
+              {/* LÓGICA CONDICIONAL: ÉXITO vs FORMULARIO */}
+              {successMessage ? (
+                // --- VISTA DE ÉXITO ---
+                <div className="w-full space-y-6 animate-in slide-in-from-right duration-300 px-4">
+                  <div className="p-4 bg-green-50 text-green-800 rounded-md border border-green-200 text-sm text-center">
+                    {successMessage}
+                  </div>
+                  <Button 
+                    asChild 
+                    className="w-full" 
+                    variant="secondary" 
+                    size="general"
+                    height="sm"
+                  >
+                    <Link href="/login">Volver al Login</Link>
+                  </Button>
+                </div>
+              ) : (
+                // --- VISTA DEL FORMULARIO ---
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="flex flex-col gap-4 w-full"
+                >
+                  <section className="flex justify-center flex-col gap-4 px-4">
+                    
+                    {/* INPUT EMAIL */}
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-body text-gray-700 ml-1">
+                        Correo Electrónico
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                          <Mail className="h-4 w-4" />
+                        </div>
+                        <Input
+                          {...form.register("email")}
+                          type="email"
+                          placeholder="ejemplo@cchc.cl"
+                          variant="login"
+                          iconPadding="left"
+                          disabled={loading}
+                        />
+                      </div>
+                      {form.formState.errors.email && (
+                        <p className="text-red-500 text-right font-body text-xs">
+                          {form.formState.errors.email.message}
+                        </p>
+                      )}
+                    </div>
 
-          <div className="mt-6 text-center">
-            <Link 
-              href="/login" 
-              className="text-sm text-gray-500 hover:text-blue-900 hover:underline flex items-center justify-center gap-2 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Volver al Login
-            </Link>
+                    {/* BOTONES DE ACCIÓN */}
+                    <div className="flex flex-col gap-3 pt-4">
+                      <Button
+                        type="submit"
+                        variant="secondary"
+                        size="general"
+                        height="sm"
+                        className="w-full"
+                        disabled={loading}
+                      >
+                        {loading ? "Enviando..." : "Enviar Enlace"}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost" // O un botón simple
+                        asChild
+                        className="w-full text-gray-500 hover:text-gray-900"
+                      >
+                        <Link href="/login" className="flex items-center justify-center gap-2">
+                           <ArrowLeft className="h-4 w-4" /> Volver al Login
+                        </Link>
+                      </Button>
+                    </div>
+
+                  </section>
+                </form>
+              )}
+            </section>
+
+            {/* ALERTAS DE ERROR */}
+            {errorMessage && (
+              <div className="px-4 max-w-[396px] mx-auto w-full">
+                <StatusAlert variant="error" size="sm" height="sm">
+                  {errorMessage}
+                </StatusAlert>
+              </div>
+            )}
+
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </section>
   );
 }
