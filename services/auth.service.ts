@@ -46,8 +46,8 @@ export const authService = {
   async getUserProfile(email: string, retries = 3): Promise<User> {
     try {
       console.log("🔍 DEBUG - Preparando petición de Permisos:", {
-        email,
-      });
+      email,
+       });
 
       const { data } = await apiClient.get<
         BackendResponse<PermissionsResponse>

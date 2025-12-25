@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod"; // Necesario para el schema local del 2FA
+import * as z from "zod"; 
 import { useRouter } from "next/navigation";
 import { LoginSchema, LoginFormValues } from "@/lib/schemas/auth.schema";
 import { authService } from "@/services/auth.service";
@@ -14,6 +14,7 @@ import { AxiosError } from "axios";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useGlobalError } from "@/context/global-error-context";
+import loginBg from "@/assets/images/imagen-login.jpg";
 
 // --- SCHEMA LOCAL PARA 2FA ---
 const TwoFactorSchema = z.object({
@@ -188,7 +189,7 @@ export default function LoginPage() {
         {/* IZQUIERDA IMAGEN */}
         <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900 max-w-[476px]">
           <Image
-            src="/images/imagen-login.jpg"
+            src={loginBg}
             alt="Imagen de Edificio"
             fill
             variant="login"

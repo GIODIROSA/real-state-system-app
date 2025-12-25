@@ -13,6 +13,7 @@ import { authService } from "@/services/auth.service";
 import { getErrorMessage } from "@/lib/utils/utils";
 import { Button, Input, Image, StatusAlert, LogoSEI } from "@/components/ui";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
+import loginBg from "@/assets/images/imagen-login.jpg";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function ResetPasswordPage() {
         {/* --- IZQUIERDA: IMAGEN --- */}
         <div className="relative hidden w-full h-64 md:h-auto md:w-1/2 md:block bg-gray-900">
           <Image
-            src="/images/imagen-login.jpg"
+            src={loginBg}
             alt="Edificio Corporativo"
             fill
             variant="login"

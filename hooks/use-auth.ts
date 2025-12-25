@@ -18,21 +18,25 @@ export function useAuth() {
   // Booleano útil para proteger rutas fácilmente
   const isAuthenticated = !!user;
 
-  // 1. Cargar sesión al iniciar (Rehidratación)
+  // 1. Cargar sesión al iniciar 
   useEffect(() => {
     const initAuth = async () => {
       try {
         if (typeof window !== "undefined") {
-          const storedUserStr = localStorage.getItem("user");
+          const storedEmail = localStorage.getItem("user_email_public");
 
-          if (storedUserStr) {
-            const parsedUser= JSON.parse(storedUserStr);
-            setUser(parsedUser);
-            await authService.getUserProfile(parsedUser.email);
+          if (storedEmail) {
+            
+           const userProfile= await authService.getUserProfile(storedEmail);
+            setUser(userProfile);
+          }else{
+            setUser(null);
           }
         }
       } catch (error: any) {
         console.error("Error al validar sesión: ", error);
+        localStorage.removeItem("user_email_public");
+        setUser(null);
         if (
           error.message === "Network Error" ||
           error.response?.status >= 500
@@ -50,13 +54,11 @@ export function useAuth() {
     initAuth();
   }, []);
 
-  const handleSessionSuccess = useCallback((userData: User, token?: string) => {
+  const handleSessionSuccess = useCallback((userData: User) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
 
-    if (token) {
-      localStorage.setItem("token", token);
-    }
+    localStorage.setItem("user_email_public", userData.email);
+  
   }, []);
 
   // 2. Función LOGIN
@@ -72,7 +74,8 @@ export function useAuth() {
 
         // CASO B: Login directo (Éxito y no requiere MFA)
         if (response.success && !response.requires_mfa) {
-          handleSessionSuccess(response.user, response.token);
+          const fullUser = await authService.getUserProfile(credentials.email);
+          handleSessionSuccess(fullUser);
         }
 
         return response;
@@ -114,6 +117,7 @@ export function useAuth() {
       console.error("Error en logout:", error);
     } finally {
       setUser(null);
+      localStorage.removeItem("user_email_public");
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       router.push("/login");

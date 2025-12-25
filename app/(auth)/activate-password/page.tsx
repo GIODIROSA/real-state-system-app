@@ -17,6 +17,7 @@ import { Button, Input, Image, StatusAlert, LogoSEI } from "@/components/ui";
 import { getErrorMessage } from "@/lib/utils/utils";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
 import { useAuth } from "@/hooks/use-auth";
+import loginBg from "@/assets/images/imagen-login.jpg";  
 
 export default function ActivateAccountPage() {
   const router = useRouter();
@@ -95,7 +96,7 @@ export default function ActivateAccountPage() {
         {/* --- IZQUIERDA: IMAGEN --- */}
         <div className="relative hidden w-full h-64 md:h-auto md:w-1/2 md:block bg-brand-50">
           <Image
-            src="/images/imagen-login.jpg"
+            src={loginBg}
             alt="Edificio Corporativo"
             fill
             variant="login"

@@ -11,6 +11,7 @@ import { ForgotPasswordSchema, ForgotPasswordFormValues } from "@/lib/schemas/au
 import { authService } from "@/services/auth.service";
 import { getErrorMessage } from "@/lib/utils/utils";
 import { Button, Input, Image, StatusAlert, LogoSEI } from "@/components/ui";
+import loginBg from "@/assets/images/imagen-login.jpg";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ export default function ForgotPasswordPage() {
         {/* --- IZQUIERDA: IMAGEN (Igual que Login) --- */}
         <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900">
           <Image
-            src="/images/imagen-login.jpg"
+            src={loginBg}
             alt="Imagen de Edificio"
             fill
             variant="login"
