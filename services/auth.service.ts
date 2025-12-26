@@ -6,6 +6,7 @@ import {
   TwoFactorPayload,
   PermissionsResponse,
   BackendResponse,
+  UserPermissions,
 } from "@/types/auth.types";
 import { User } from "@/types/user.types";
 // import { verify } from "crypto";
@@ -50,7 +51,7 @@ export const authService = {
        });
 
       const { data } = await apiClient.get<
-        BackendResponse<PermissionsResponse>
+        BackendResponse<UserPermissions>
       >("/permissions/user", {
         params: { email: email },
         withCredentials: true,
@@ -67,6 +68,13 @@ export const authService = {
       // 3.0 Mapea los permisos
       const flattenedPermissions = userData.permissions.map((p) => p.name);
 
+      const mappedRoles = userData.roles.map((roleString) => ({
+        id: 0, 
+        name: roleString 
+      }));
+
+
+
       // 3.1 Construir usuario
 
       const user: User = {
@@ -76,7 +84,7 @@ export const authService = {
         last_name: "",
         name: email.split("@")[0],
         role: userData.roles[0] || "User",
-        roles: userData.roles,
+        roles: mappedRoles,
         permissions: flattenedPermissions,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
