@@ -39,9 +39,11 @@ export default function PermissionGuard({
 
   //5. Mientras carga
   if (loading) {
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <LoadingModal text="Verificando permisos..." />
-    </div>;
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <LoadingModal text="Verificando permisos..." />
+      </div>
+    );
   }
 
   // 6. Bloqueo Real
