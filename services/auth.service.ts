@@ -46,18 +46,19 @@ export const authService = {
   //2. Obtener perfil y roles
   async getUserProfile(email: string, retries = 3): Promise<User> {
     try {
-      console.log("🔍 DEBUG - Preparando petición de Permisos:", {
-      email,
-       });
+      // console.log("🔍 DEBUG - Preparando petición de Permisos:", {
+      // email,
+      //  });
 
-      const { data } = await apiClient.get<
-        BackendResponse<UserPermissions>
-      >("/permissions/user", {
-        params: { email: email },
-        withCredentials: true,
-      });
+      const { data } = await apiClient.get<BackendResponse<UserPermissions>>(
+        "/permissions/user",
+        {
+          params: { email: email },
+          withCredentials: true,
+        }
+      );
 
-      console.log("✅ DEBUG - Respuesta del servidor:", data);
+      //console.log("✅ DEBUG - Respuesta del servidor:", data);
 
       if (!data.success || !data.data) {
         throw new Error("Datos de permisos incompletos");
@@ -65,20 +66,25 @@ export const authService = {
 
       const userData = data.data;
 
+      console.log("🚨 [1. SERVICE] Datos crudos del Backend:", {
+        rolesRecibidos: userData.roles, // ¿Es ["Admin"]?
+        permisosRecibidos: userData.permissions, // ¿Tiene {name: "user:read"}?
+      });
+
       // 3.0 Mapea los permisos
       const flattenedPermissions = userData.permissions.map((p) => p.name);
 
       const mappedRoles = userData.roles.map((roleString) => ({
-        id: 0, 
-        name: roleString 
+        id: 0,
+        name: roleString,
       }));
 
-
+      const safeId = new Date().getTime();
 
       // 3.1 Construir usuario
 
       const user: User = {
-        id: typeof email === "string" ? parseInt(email) : 0,
+        id: safeId,
         email: email,
         first_name: email.split("@")[0],
         last_name: "",
@@ -89,6 +95,8 @@ export const authService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      console.log("✅ [SERVICE] Usuario corregido y armado:", user);
 
       return user;
     } catch (error: any) {

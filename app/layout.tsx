@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${lora.variable} ${roboto.variable} antialiased`}>
+      <body className={`${lora.variable} ${roboto.variable} antialiased`} suppressHydrationWarning={true}>
         <GlobalErrorProvider>{children}</GlobalErrorProvider>
       </body>
     </html>

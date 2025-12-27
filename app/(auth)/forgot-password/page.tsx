@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
       <div className="relative flex gap-4 w-full max-w-[952px] flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl md:h-[793px] md:flex-row">
         
         {/* --- IZQUIERDA: IMAGEN (Igual que Login) --- */}
-        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900">
+        <div className="relative hidden w-full h-64 md:h-auto md:block bg-gray-900 max-w-[476px]">
           <Image
             src={loginBg}
             alt="Imagen de Edificio"

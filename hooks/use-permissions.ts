@@ -7,17 +7,11 @@ export function usePermissions() {
   const can = (requiredPermission: Permission): boolean => {
     if (!user) return false;
 
-    if (user.permissions && Array.isArray(user.permissions)) {
-      if (user.permissions.includes(requiredPermission as any)) {
-        return true;
-      }
-    }
+    if (user.permissions?.includes(requiredPermission as any)) return true;
 
     if (user.role && typeof user.role === "string") {
-      const mappedPermissions = ROLE_PERMISSIONS[user.role];
-      if (mappedPermissions?.includes(requiredPermission)) {
+      if (ROLE_PERMISSIONS[user.role]?.includes(requiredPermission))
         return true;
-      }
     }
 
     if (user.roles && Array.isArray(user.roles)) {
@@ -29,10 +23,7 @@ export function usePermissions() {
     return false;
   };
 
-  const canAny = (requiredPermissions: Permission[]): boolean => {
-    if (!user) return false;
-    return requiredPermissions.some((permission) => can(permission));
-  };
+  const canAny = (permissions: Permission[]) => permissions.some(can);
 
   return { can, canAny };
 }

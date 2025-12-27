@@ -26,16 +26,8 @@ export default function PermissionGuard({
   useEffect(() => {
     //3. Protección crítica
     if (loading) return;
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (!hasPermission && fallbackUrl) {
-      router.push(fallbackUrl);
-    }
-  }, [hasPermission, loading, user, router, fallbackUrl]);
+    if (!user) router.push("/login");
+  }, [loading, user, router]);
 
   //5. Mientras carga
   if (loading) {
@@ -48,6 +40,16 @@ export default function PermissionGuard({
 
   // 6. Bloqueo Real
   if (!hasPermission) {
+    console.warn(
+      "🚨 [4. GUARD] ACCESO DENEGADO. Datos al momento del bloqueo:",
+      {
+        permisoRequerido: permission,
+        usuarioEmail: user?.email,
+        rolesUsuario: user?.roles,
+        loadingStatus: loading,
+      }
+    );
+
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center space-y-4">
         <h2 className="text-xl font-bold text-red-600">Acceso Restringido</h2>

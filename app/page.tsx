@@ -29,7 +29,7 @@ export default function RootPage() {
   // Muestra una pantalla de carga mientras se verifica la sesión del usuario
   return (
     <div className="flex min-h-screen items-center justify-center">
-     <LoadingModal text="Verificando sesión..." />
+     <LoadingModal text="Por favor espera un momento" />
     </div>
   );
 }
