@@ -18,7 +18,7 @@ export default function DashboardLayout({
         <Header />
         
         {/* Área scrolleable del contenido */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8 bg-brand-50">
           {children}
         </div>
       </main>

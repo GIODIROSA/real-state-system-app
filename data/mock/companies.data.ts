@@ -1,0 +1,75 @@
+import { Company } from "@/types/company.types";
+
+export const MOCK_COMPANIES_DB: Company[] = [
+  {
+    rut: "24.444.837-8",
+    businessName: "Los Aromos Construcciones",
+    website: "www.losaromos.cl",
+    comments: "Empresa antigua",
+    isCchcPartner: true,
+    projectsCount: 2,
+    status: "Informado",
+    regionId: "13", // Región Metropolitana (Santiago)
+  },
+  {
+    rut: "22.343.837-9",
+    businessName: "Aconcagua",
+    website: "www.aconcagua.cl",
+    comments: "",
+    isCchcPartner: true,
+    projectsCount: 2,
+    status: "Informado",
+    regionId: "13",
+  },
+  {
+    rut: "23.654.837-6",
+    businessName: "Galilea",
+    website: "www.galilea.cl",
+    comments: "",
+    isCchcPartner: false,
+    projectsCount: 2,
+    status: "Informado",
+    regionId: "13",
+  },
+  {
+    rut: "23.983.002-3",
+    businessName: "Campos Construcciones",
+    website: "www.cyc.cl",
+    comments: "Empresa creada el 2025",
+    isCchcPartner: true,
+    projectsCount: 0,
+    status: "No Informado",
+    regionId: "13",
+  },
+  {
+    rut: "14.444.837-8",
+    businessName: "Nuevo Cono Sur",
+    website: "www.conosur.cl",
+    comments: "",
+    isCchcPartner: false,
+    projectsCount: 2,
+    status: "No Informado",
+    regionId: "13",
+  },
+  // Data extra para probar paginación (> 5 items)
+  {
+    rut: "76.111.222-3",
+    businessName: "Inmobiliaria del Norte",
+    website: "",
+    comments: "",
+    isCchcPartner: true,
+    projectsCount: 5,
+    status: "Informado",
+    regionId: "13",
+  },
+   {
+    rut: "88.888.888-8",
+    businessName: "Constructora Valparaíso",
+    website: "",
+    comments: "",
+    isCchcPartner: true,
+    projectsCount: 1,
+    status: "No Informado",
+    regionId: "05", // Otra región para probar filtros
+  },
+];
